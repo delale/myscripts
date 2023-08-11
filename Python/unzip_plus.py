@@ -1,7 +1,20 @@
 """Unzipping multiple complex archives from directory, keeping only wanted parts of archive.
 Complex archives: archives containing a subfolder tree.
+The script allows to specify an input_directory containing the .zip archives, an output_directory 
+to write the extracted files to and a list of files to remove (remove).
+You can also run a test by specifying --run_test 1 from the CLI, as long as the in_test/ directory 
+containing at least one .zip archive exists in the working directory.
 
-Code created aided by GPT-3.
+For files to ignore during extraction (arguments to --remove) you can specify directory names without 
+path separators (\ or /), specific files, and file types by prepending them with '.' (e.g. .mp3).
+
+The script also writes to the output_directory a log file named unzip_plus.log
+
+Example usage:
+    python3 unzip_plus --input_directory my/path/input_directory --output_directory my/path/output_directory --remove directory filename file.example .extension 
+
+    to run test script:
+    python3 unzip_plus --run_test 1
 """
 
 import argparse
@@ -10,8 +23,15 @@ import os
 import zipfile
 import shutil
 
-def extract_and_filter_zips(input_directory, output_directory, to_remove) -> None:
-    """
+def extract_and_filter_zips(input_directory: str, output_directory: str, to_remove: list) -> None:
+    """Extracts zip archives to an output directory from an input directory ignoring 
+    filenames, directories, specific files, and extensions specified in the to_remove list.
+
+    Args:
+        input_directory: Directory containing the .zip archives to extract.
+        output_directory: Directory to write the extracted files to.
+        to_remove: List of filenames, directories, specific files, and extensions to 
+            ignore during extraction (i.e. to not extract).
     """
     # ensure correct paths
     if not os.path.isdir(input_directory):
