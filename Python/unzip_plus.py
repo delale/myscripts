@@ -37,10 +37,10 @@ def extract_and_filter_zips(input_directory, output_directory, to_remove) -> Non
     # Init logger
     logging.basicConfig(
         filename=os.path.join(output_directory, "unzip_plus.log"),
-        encoding='utf-8', level=logging.DEBUG
+        encoding='utf-8', level=logging.DEBUG, filemode='w'
     )
     logging.info(
-        f"unzip_plus.py called from {os.getcwd()} with parameters:\n" +\
+        f" unzip_plus.py called from {os.getcwd()} with parameters:\n" +\
         f"\t- input_directory={input_directory}\n" +\
         f"\t- output_directory={output_directory}\n" +\
         f"\t- remove={to_remove}\n" + "-"*15 + "\n\n"
@@ -55,7 +55,7 @@ def extract_and_filter_zips(input_directory, output_directory, to_remove) -> Non
 
             try:
                 with zipfile.ZipFile(filepath, 'r') as zip_ref:
-                    logging.INFO(f"Extracting {filename}...")
+                    logging.info(f" Extracting {filename}...")
                     
                     # Extract each item in the archive
                     for item in zip_ref.infolist():
@@ -66,12 +66,12 @@ def extract_and_filter_zips(input_directory, output_directory, to_remove) -> Non
                             ):
                                 # Extract the item if not in to_remove
                                 zip_ref.extract(item, output_directory)
-                                logging.INFO(
-                                    f"Extracted {item.filename} to " +\
+                                logging.info(
+                                    f" Extracted {item.filename} \nto " +\
                                     f"{os.path.join(output_directory, item.filename)}"
                                     )
                             else:
-                                logging.INFO(
+                                logging.info(
                                     f"{os.path.join(output_directory, item.filename)} already exists."
                                     )
 
@@ -93,9 +93,12 @@ def extract_and_filter_zips(input_directory, output_directory, to_remove) -> Non
                         #     extracted_item_path = os.path.join(extracted_path, extracted_item)
                         #     shutil.move(extracted_item_path, output_directory)
                         # os.rmdir(extracted_path)
-                        
-            except zipfile.BadZipFile() as e:
-                logging.error(e + f"\nOn file {filepath}")
+                    
+                    logging.info(f" ...Done extracting {filename}\n")
+
+            except zipfile.LargeZipFile as e:
+                logging.error(" " + str(e) + f"\nOn file {filepath}")
+                raise e
         
 
 def test() -> None:
