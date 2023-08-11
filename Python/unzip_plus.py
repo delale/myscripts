@@ -11,6 +11,8 @@ import zipfile
 import shutil
 
 def extract_and_filter_zips(input_directory, output_directory, to_remove) -> None:
+    """
+    """
     # ensure correct paths
     if not os.path.isdir(input_directory):
         raise ValueError(f"{input_directory} does not exist")
@@ -59,7 +61,9 @@ def extract_and_filter_zips(input_directory, output_directory, to_remove) -> Non
                     
                     # Extract each item in the archive
                     for item in zip_ref.infolist():
-                        if os.path.dirname(item.filename).split('/')[-1] not in to_remove:
+                        if os.path.dirname(item.filename).split('/')[-1] not in to_remove and\
+                            os.path.basename(item.filename) not in to_remove and\
+                                os.path.splitext(item.filename)[-1] not in to_remove:
                             if not (
                                 os.path.isfile(os.path.join(output_directory, item.filename)) or\
                                     os.path.isdir(os.path.join(output_directory, item.filename))
@@ -67,7 +71,7 @@ def extract_and_filter_zips(input_directory, output_directory, to_remove) -> Non
                                 # Extract the item if not in to_remove
                                 zip_ref.extract(item, output_directory)
                                 logging.info(
-                                    f" Extracted {item.filename} \nto " +\
+                                    f" Extracted {item.filename} \n\tto " +\
                                     f"{os.path.join(output_directory, item.filename)}"
                                     )
                             else:
@@ -102,10 +106,10 @@ def extract_and_filter_zips(input_directory, output_directory, to_remove) -> Non
         
 
 def test() -> None:
-    # Example usage:
+    # Test usage:
     input_directory = os.path.join(os.getcwd(), "in_test")
     output_directory = os.path.join(os.getcwd(), "out_test")
-    to_remove = "raw"
+    to_remove = ["raw", "audio_video_features.csv", "transcription", ".mp4", ".png"]
     extract_and_filter_zips(input_directory, output_directory, to_remove)
 
 def main(input_directory, output_directory, run_test, remove) -> None:
