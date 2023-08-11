@@ -54,10 +54,9 @@ def extract_and_filter_zips(input_directory, output_directory, to_remove) -> Non
 
         # Check if the file is a zip archive
         if filename.endswith(".zip"):
-
             try:
+                logging.info(f" Extracting {filename}...")
                 with zipfile.ZipFile(filepath, 'r') as zip_ref:
-                    logging.info(f" Extracting {filename}...")
                     
                     # Extract each item in the archive
                     for item in zip_ref.infolist():
@@ -102,7 +101,8 @@ def extract_and_filter_zips(input_directory, output_directory, to_remove) -> Non
 
             except zipfile.LargeZipFile as zip_error:
                 if isinstance(zip_error, zipfile.BadZipFile):
-                    logging.error(f"BadZipFile error for file:\n\t{filepath}\n")
+                    print(f"BadZipFile error for file:\n\t{filepath}\n")
+                    # logging.error(f"BadZipFile error for file:\n\t{filepath}\n")
                     raise zip_error
                 else:
                     raise zip_error
