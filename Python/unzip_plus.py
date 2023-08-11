@@ -100,9 +100,12 @@ def extract_and_filter_zips(input_directory, output_directory, to_remove) -> Non
                     
                     logging.info(f" ...Done extracting {filename}\n")
 
-            except zipfile.LargeZipFile as e:
-                logging.error(" " + str(e) + f"\nOn file {filepath}")
-                raise e
+            except zipfile.LargeZipFile as zip_error:
+                if isinstance(zip_error, zipfile.BadZipFile):
+                    logging.error(f"BadZipFile error for file:\n\t{filepath}\n")
+                    raise zip_error
+                else:
+                    raise zip_error
         
 
 def test() -> None:
