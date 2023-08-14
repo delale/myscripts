@@ -15,6 +15,10 @@ Example usage:
 
     to run test script:
     python3 unzip_plus --run_test 1
+
+Caveats: if --input_directory or --output_directory are not specified, they will default to the 
+    working directory and the working directory subfolder output/ respectively. Confirmation from 
+    the user will be asked before proceeding.
 """
 
 import argparse
