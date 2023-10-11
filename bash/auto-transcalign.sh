@@ -6,6 +6,11 @@
 #   2. force-align using montreal-forced-aligner                    #
 #                                                                   #
 # Alessandro De Luca - 10.2023                                      #
+#								    #
+# Usage: 						    	    #
+# 	conda activate <whisper and mfa env>                        #
+#	bash auto-transcalign.sh <input dir> <output dir>	    #
+#								    #
 #####################################################################
 
 if [ "$#" -eq 0]; then
@@ -24,11 +29,8 @@ if [ ! -d "$out_dir" ]; then
     exit 1
 fi
 
-# conda activate align
-conda activate soundprocessing  # change this to env where whisper-openai and mfa are installed
-
 mfa model download acoustic english_mfa
 mfa model download dictionary english_us_mfa
 
-whisper "$in_dir"/* --model large-v2 --verbose False --output_format txt
+whisper "$in_dir"/* --model large-v2 --verbose False --output_format txt --outpu_dir "$in_dir"
 mfa align "$in_dir" english_us_mfa english_mfa "$out_dir" --textgrid_cleanup --include_original_text
