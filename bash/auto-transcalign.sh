@@ -32,5 +32,5 @@ fi
 mfa model download acoustic english_mfa
 mfa model download dictionary english_us_mfa
 
-whisper "$in_dir"/* --model large-v2 --verbose False --output_format txt --output_dir "$in_dir"
-mfa align "$in_dir" english_us_mfa english_mfa "$out_dir" --textgrid_cleanup --include_original_text
+whisper "$in_dir"/*.wav --model large-v2 --verbose False --output_format txt --output_dir "$in_dir"/ --fp16 False
+mfa align "$in_dir" english_us_mfa english_mfa "$out_dir" --textgrid_cleanup --clean
