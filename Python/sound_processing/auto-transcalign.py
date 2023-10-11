@@ -40,7 +40,8 @@ def transcribe_audio(path_to_corpus: str, language=None, model="large-v2") -> No
 
     # For each audio file run Whisper transcription
     for audio in audio_files:
-        if audio.endswith(".wav"):
+        # tested this only with WAV files so far
+        if audio.endswith(".wav") or audio.endswith(".flac") or audio.endswith(".mp3"):
             logging.info(f"Transcribing {audio}")
             whisper_cmd = f"whisper {os.path.join(path_to_corpus, audio)} --model {model} --output_format txt --verbose False --output_dir {path_to_corpus} --fp16 False"
             if language is not None:
