@@ -19,13 +19,14 @@ import subprocess
 import logging
 
 
-def transcribe_audio(path_to_corpus: str, language=None, model="large-v2") -> None:
+def transcribe_audio(path_to_corpus: str, language=None, model="large-v2", overwrite=False) -> None:
     """Transcribe audio using Whisper and the large-v2 model.
 
     Args:
         path_to_corpus: Path to the corpus.
         language: Language of the corpus. If None, automatically detected by Whisper (default=None).
-        model = Name of Whisper model to use (default='large-v2').
+        model: Name of Whisper model to use (default='large-v2').
+        overwrite: Overwrite transcriptions if they are present (default=False).
     """
     audio_files = os.listdir(
         path_to_corpus)    # get all files in input directory
@@ -42,15 +43,17 @@ def transcribe_audio(path_to_corpus: str, language=None, model="large-v2") -> No
     for audio in audio_files:
         # tested this only with WAV files so far
         if audio.endswith(".wav") or audio.endswith(".flac") or audio.endswith(".mp3"):
-            logging.info(f"Transcribing {audio}")
-            whisper_cmd = f"whisper {os.path.join(path_to_corpus, audio)} --model {model} --output_format txt --verbose False --output_dir {path_to_corpus} --fp16 False"
-            if language is not None:
-                whisper_cmd += f" --language {language}"
-            try:
-                subprocess.run(whisper_cmd.split())
-            except Exception as e:
-                logging.error(f"{e}")
-                raise
+            # if overwrite is True or if the transcription does not exist
+            if overwrite or os.path.splitext(audio)+".txt" not in audio_files:
+                logging.info(f"Transcribing {audio}")
+                whisper_cmd = f"whisper {os.path.join(path_to_corpus, audio)} --model {model} --output_format txt --verbose False --output_dir {path_to_corpus} --fp16 False"
+                if language is not None:
+                    whisper_cmd += f" --language {language}"
+                try:
+                    subprocess.run(whisper_cmd.split())
+                except Exception as e:
+                    logging.error(f"{e}")
+                    raise
     return None
 
 
@@ -125,32 +128,34 @@ def main():
 
     whisper_arguments = [
         {'name': "language",
-            'help': "Language of the corpus. If None, automatically detected by Whisper (default=None).", 'default': None, 'type': str},
+            'help': "[Whisper arg] Language of the corpus. If None, automatically detected by Whisper (default=None).", 'default': None, 'type': str},
         {'name': "model",
-            'help': "Name of Whisper model to use (default='large-v2').", 'default': "large-v2", 'type': str}
+            'help': "[Whisper arg] Name of Whisper model to use (default='large-v2').", 'default': "large-v2", 'type': str},
+        {'name': "overwrite",
+            'help': "[Whisper arg] Overwrite transcriptions if they are present (default=False)", 'default': False, 'type': bool}
     ]
 
     mfa_arguments = [
         {'name': "output_path",
-            'help': "Path to the output directory. If None, path_to_corpus is used (default=None).", 'default': None, 'type': str},
+            'help': "[MFA arg] Path to the output directory. If None, path_to_corpus is used (default=None).", 'default': None, 'type': str},
         {'name': "speaker_characters",
-            'help': "Number of characters of file names to use for determining speaker (default=None).", 'default': None, 'type': int},
+            'help': "[MFA arg] Number of characters of file names to use for determining speaker (default=None).", 'default': None, 'type': int},
         {'name': "dictionary",
-            'help': "Name or path of the pronounciaton dictionary (default=english_us_mfa).", 'default': "english_us_mfa", 'type': str},
+            'help': "[MFA arg] Name or path of the pronounciaton dictionary (default=english_us_mfa).", 'default': "english_us_mfa", 'type': str},
         {'name': "acoustic_model",
-            'help': "Name or path of the pretrained acoustic model (default=english_mfa).", 'default': "english_mfa", 'type': str},
+            'help': "[MFA arg] Name or path of the pretrained acoustic model (default=english_mfa).", 'default': "english_mfa", 'type': str},
         {'name': "clean",
-            'help': "Remove files from previous runs (default=False).", 'default': False, 'type': bool},
+            'help': "[MFA arg] Remove files from previous runs (default=False).", 'default': False, 'type': bool},
         {'name': "beam",
-            'help': "Beam size (default=100).", 'default': 100, 'type': int},
+            'help': "[MFA arg] Beam size (default=100).", 'default': 100, 'type': int},
         {'name': "retry_beam",
-            'help': "Rerun beam size (default=400).", 'default': 400, 'type': int},
+            'help': "[MFA arg] Rerun beam size (default=400).", 'default': 400, 'type': int},
         {'name': "include_original_text",
-            'help': "Include original utterance text in the output (default=True).", 'default': True, 'type': bool},
+            'help': "[MFA arg] Include original utterance text in the output (default=True).", 'default': True, 'type': bool},
         {'name': "textgrid_cleanup",
-            'help': "Post-processing of TextGrids that cleans up silences and recombines compound words and clitics (default=True).", 'default': True, 'type': bool},
+            'help': "[MFA arg] Post-processing of TextGrids that cleans up silences and recombines compound words and clitics (default=True).", 'default': True, 'type': bool},
         {'name': "num_jobs",
-            'help': "Set the number of processes to use (default=3).", 'default': 3, 'type': int}
+            'help': "[MFA arg] Set the number of processes to use (default=3).", 'default': 3, 'type': int}
     ]
 
     for arg_info in whisper_arguments:
