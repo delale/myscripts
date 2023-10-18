@@ -28,32 +28,41 @@ def transcribe_audio(path_to_corpus: str, language=None, model="large-v2", overw
         model: Name of Whisper model to use (default='large-v2').
         overwrite: Overwrite transcriptions if they are present (default=False).
     """
+    logger = logging.getLogger(os.path.join(
+        path_to_corpus, "../auto-transcalign.log"))
     audio_files = os.listdir(
         path_to_corpus)    # get all files in input directory
 
-    logging.info(f"Whisper on {path_to_corpus} corpus.")
+    logger.info(f"Whisper on {path_to_corpus} corpus.")
     if language is None:
-        logging.info(
+        logger.info(
             f"Whisper CMD: whisper {os.path.join(path_to_corpus, '<audio_file>')} --model {model} --output_format txt --verbose False --output_dir {path_to_corpus} --fp16 False")
     else:
-        logging.info(
+        logger.info(
             f"Whisper CMD: whisper {os.path.join(path_to_corpus, '<audio_file>')} --model {model} --output_format txt --verbose False --output_dir {path_to_corpus} --fp16 False --language {language}")
 
+    naudio = 0
     # For each audio file run Whisper transcription
     for audio in audio_files:
         # tested this only with WAV files so far
         if audio.endswith(".wav") or audio.endswith(".flac") or audio.endswith(".mp3"):
+            naudio += 1
             # if overwrite is True or if the transcription does not exist
-            if overwrite or os.path.splitext(audio)+".txt" not in audio_files:
-                logging.info(f"Transcribing {audio}")
+            if overwrite or os.path.splitext(audio)[0]+".txt" not in audio_files:
+                logger.info(f"Transcribing {audio}")
                 whisper_cmd = f"whisper {os.path.join(path_to_corpus, audio)} --model {model} --output_format txt --verbose False --output_dir {path_to_corpus} --fp16 False"
                 if language is not None:
                     whisper_cmd += f" --language {language}"
                 try:
                     subprocess.run(whisper_cmd.split())
                 except Exception as e:
-                    logging.error(f"{e}")
+                    logger.error(f"{e}")
                     raise
+            else:
+                logger.info(
+                    f"Overwrite: {overwrite}; audio already transcribed.")
+
+    logger.info(f"Transcribed {naudio} audio files.")
     return None
 
 
@@ -78,6 +87,9 @@ def align_audio(
         textgrid_cleanup: Post-processing of TextGrids that cleans up silences and recombines compound words and clitics (default=True).
         num_jobs: Set the number of processes to use (default=3).
     """
+    logger = logging.getLogger(os.path.join(
+        path_to_corpus, "../auto-transcalign.log"))
+
     if output_path is None:
         output_path = path_to_corpus
 
@@ -101,12 +113,12 @@ def align_audio(
         mfa_cmd += " --no_textgrid_cleanup"
 
     # Run mfa command
-    logging.info(f"MFA on {path_to_corpus} corpus; output in {output_path}")
-    logging.info(f"Running MFA command: {mfa_cmd}")
+    logger.info(f"MFA on {path_to_corpus} corpus; output in {output_path}")
+    logger.info(f"Running MFA command: {mfa_cmd}")
     try:
         subprocess.run(mfa_cmd.split())
     except Exception as e:
-        logging.error(f"{e}")
+        logger.error(f"{e}")
         raise
     return None
 
@@ -178,14 +190,15 @@ def main():
 
     # Setup logging
     logging.basicConfig(
-        filename=os.path.join(path_to_corpus, "../auto-transcalign.log"), level=logging.ERROR,
+        filename=os.path.join(path_to_corpus, "../auto-transcalign.log"), level=logging.DEBUG,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
-    logging.getLogger("auto-transcribe")
+    logger = logging.getLogger(os.path.join(
+        path_to_corpus, "../auto-transcalign.log"))
 
     # Transcribe audio
     transcribe_audio(path_to_corpus=path_to_corpus, **whisper_args)
-    logging.info("Finished transcription!\n\n")
+    logger.info("Finished transcription!\n\n")
 
     # Align audio
     align_audio(path_to_corpus=path_to_corpus, **mfa_args)
