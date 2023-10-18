@@ -60,7 +60,7 @@ def transcribe_audio(path_to_corpus: str, language=None, model="large-v2", overw
                     raise
             else:
                 logger.info(
-                    f"Overwrite: {overwrite}; audio already transcribed.")
+                    f"Overwrite: {overwrite}; {audio} already transcribed.")
 
     logger.info(f"Transcribed {naudio} audio files.")
     return None
@@ -202,6 +202,7 @@ def main():
 
     # Align audio
     align_audio(path_to_corpus=path_to_corpus, **mfa_args)
+    logger.info("Finished alignment.")
 
 
 if __name__ == "__main__":
