@@ -113,7 +113,9 @@ for iFile to nFiles
 
     # Remove objects
     selectObject: "Sound " + fileID$
-    plusObject: "TextGrid " + fileID$
+	if not editOnly
+    		plusObject: "TextGrid " + fileID$
+	endif
     Remove
 
     appendInfoLine: ""
