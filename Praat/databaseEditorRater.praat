@@ -16,8 +16,8 @@
 # Get lists of files in the directory
 form databaseExplorerRater...
     comment Specify input directory and (optional) output directory. You can also specify if you would like to only edit the sound files and not rate them or extract metadata.
-    folder inDir /Users/aledel/Documents/misc/testing/praat-test/indir
-    folder outDir /Users/aledel/Documents/misc/testing/praat-test/outdir
+    folder inDir /Users/aledel/Documents/
+    folder outDir /Users/aledel/Documents/
     boolean editOnly 0
 endform
 
