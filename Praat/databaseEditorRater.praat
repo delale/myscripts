@@ -19,6 +19,18 @@ form databaseExplorerRater...
     folder inDir /Users/aledel/Documents/
     folder outDir /Users/aledel/Documents/
     boolean editOnly 0
+	choice Sampling_frequency_(Hz) 7
+		button 8000
+		button 10000
+		button 16000
+		button 22050
+		button 44100
+		button 48000
+		button original
+    optionmenu quantization 1
+        option 16
+        option 24
+        option 32
 endform
 
 # Create a table to store the results
@@ -38,11 +50,16 @@ for iFile to nFiles
     selectObject: "Strings files"
     filename$ = Get string: iFile
 	appendInfoLine: "Reading: " + filename$
-    Read from file: inDir$ + "/" + filename$
-    fileID$ = left$ (filename$, length (filename$) - 4)
+    sound = Read from file: inDir$ + "/" + filename$
+	fileID$ = left$ (filename$, length (filename$) - 4)
 
     # Display the audio file (waveform + spectrogram)
-    selectObject: "Sound " + fileID$
+    selectObject: sound
+
+	# Resample (if selected)
+	if not sampling_frequency == 7
+		sound = Resample: number(sampling_frequency$), 50
+		selectObject: sound
     Edit
     if editOnly
         # editor form
@@ -64,7 +81,7 @@ for iFile to nFiles
         endPause: "Continue", 1
     endif
     # close editor
-    editor: "Sound " + fileID$
+    editor: sound
         Close
 
     # Correctly format the new file name
@@ -76,14 +93,14 @@ for iFile to nFiles
     # Extract file information
     if not editOnly
 		appendInfoLine: "Extracting sound info..."
-        selectObject: "Sound " + fileID$
+        selectObject: sound
         duration = Get total duration
         sr = Get sampling frequency
         nChannels = Get number of channels
 
         # Extract VAD speech duration
-        To TextGrid (speech activity): 0.0, 0.3, 0.1, 70.0, 6000.0, -10.0, -35.0, 0.1, 0.1, "sil", "v"
-        selectObject: "TextGrid " + fileID$
+        tg = To TextGrid (speech activity): 0.0, 0.3, 0.1, 70.0, 6000.0, -10.0, -35.0, 0.1, 0.1, "sil", "v"
+        selectObject: tg
         vadspeechDur = Get total duration of intervals where: 1, "is equal to", "v"
         appendInfoLine: "dur: ", duration, "; sr: ", sr, "; nChannels: ", nChannels, "; vadspeechDur: ", vadspeechDur
         appendInfoLine: "Finished"
@@ -107,14 +124,21 @@ for iFile to nFiles
 
     # Save the audio file
     appendInfoLine: "Saving sound... "
-    selectObject: "Sound " + fileID$
-    Save as WAV file: outDir$ + "/" + new_file_name$
+    selectObject: sound
+    if number(quantization$) == 24
+        Save as 24-bit WAV file: outDir$ + "/" + new_file_name$
+    elsif number(quantization$) == 32
+        Save as 32-bit WAV file: outDir$ + "/" + new_file_name$
+    else
+        Save as WAV file: outDir$ + "/" + new_file_name$
+    endif
+
 	appendInfoLine: "Saved: " + new_file_name$
 
     # Remove objects
-    selectObject: "Sound " + fileID$
+    selectObject: sound
 	if not editOnly
-    		plusObject: "TextGrid " + fileID$
+    		plusObject: tg
 	endif
     Remove
 
