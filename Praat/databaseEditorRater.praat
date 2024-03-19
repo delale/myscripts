@@ -60,6 +60,7 @@ for iFile to nFiles
 	if not sampling_frequency == 7
 		sound = Resample: number(sampling_frequency$), 50
 		selectObject: sound
+	endif
     Edit
     if editOnly
         # editor form
