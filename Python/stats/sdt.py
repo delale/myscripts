@@ -76,14 +76,15 @@ def plot_distributions(d: float, sigmasignal: float, cpoint: float = None):
 
     # Plot distributions
     fig, ax = plt.subplots(figsize=(8, 8))
-    sns.histplot(noise, color=".2", kde=True, ax=ax, label='Noise')
-    sns.histplot(signal, color="darkred", kde=True,
+    sns.histplot(noise, color=".2", kde=True,
+                 stat='density', ax=ax, label='Noise')
+    sns.histplot(signal, color="darkred", kde=True, stat='density',
                  ax=ax, label='Signal+Noise')
     if cpoint:
         ax.axvline(cpoint, color='black', linestyle='--',
                    label='Criterion Point')
         ax.set_xticks(list(ax.get_xticks()) + [cpoint])
-    ax.set(xlabel='', ylabel='Density',
+    ax.set(xlabel='', ylabel='Frequency',
            title=f'Signal+Noise and Noise Distributions\nd-prime = {d:.2f}')
     ax.legend()
     plt.show()
