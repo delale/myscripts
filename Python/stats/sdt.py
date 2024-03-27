@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def plot_roc(hitrate: np.ndarray, farate: np.ndarray) -> None:
+def plot_roc(hitrate: np.ndarray, farate: np.ndarray, auc: float = None) -> None:
     """Plots the ROC curve.
 
     Parameters:
@@ -17,12 +17,17 @@ def plot_roc(hitrate: np.ndarray, farate: np.ndarray) -> None:
         Hit rate values (sorted and with 0 and 1 at the ends).
     farate: np.ndarray
         False alarm rate values (sorted and with 0 and 1 at the ends).
+    auc: float
+        Area under the curve. If provided, it will be displayed in the plot title.
     """
     # Plot ROC curve
+    title = 'ROC Curve'
     fig, ax = plt.subplots(figsize=(8, 8))
     ax.plot(farate, hitrate, marker='o')
     ax.plot([0, 1], [0, 1], linestyle='--', color='gray')
-    ax.set(xlabel='False Alarm Rate', ylabel='Hit Rate', title='ROC Curve')
+    if auc is not None:
+        title = 'ROC Curve\nAUC = {:.2f}'.format(auc)
+    ax.set(xlabel='False Alarm Rate', ylabel='Hit Rate', title=title)
     plt.show()
 
 
@@ -51,7 +56,7 @@ def plot_distributions(d: float, cpoint: float, sigmasignal: float):
                  ax=ax, label='Signal+Noise')
     ax.axvline(cpoint, color='black', linestyle='--', label='Criterion Point')
     ax.set(xlabel='', ylabel='Density',
-           title='Signal+Noise and Noise Distributions')
+           title='Signal+Noise and Noise Distributions\nCriterion Point = {:.2f}'.format(cpoint))
     ax.legend()
     plt.show()
 
@@ -145,12 +150,12 @@ def extract_sdt(ypred: np.ndarray, ytrue: np.ndarray, equal_var: bool = False, d
         plot_distributions(d, cpoint, sigmasignal)
 
     if roc_plot:
-        plot_roc(hitrate=y, farate=x)
+        plot_roc(hitrate=y, farate=x, auc=auc)
 
     return sdt_metrics
 
 
-def _test_distribution_plot(d, sigmasignal, cpoint, truec):
+def _test_distribution_plot(d, sigmasignal, cpoint, truec, ax: plt.Axes):
     n = 1000
 
     # Generate signal+noise and noise distributions
@@ -158,17 +163,15 @@ def _test_distribution_plot(d, sigmasignal, cpoint, truec):
     signal = np.random.normal(loc=d, scale=sigmasignal, size=n)
 
     # Plot distributions
-    fig, ax = plt.subplots(figsize=(8, 8))
     sns.histplot(noise, color=".2", kde=True, ax=ax, label='Noise')
     sns.histplot(signal, color="darkred", kde=True,
                  ax=ax, label='Signal+Noise')
     ax.axvline(cpoint, color='black', linestyle='--', label='Criterion Point')
     ax.axvline(truec, color='steelblue', linestyle='--',
                label='True Criterion Point')
+    ax.set_xticks(list(ax.get_xticks()) + [truec])
     ax.set(xlabel='', ylabel='Density',
-           title='Signal+Noise and Noise Distributions')
-    ax.legend()
-    plt.show()
+           title='Signal+Noise and Noise Distributions; d = {:.2f}'.format(d))
 
 
 def test():
@@ -184,6 +187,7 @@ def test():
     responses = np.zeros((signal.size, len(criterions)))
 
     # Extract SDT metrics for different criterions
+    fig, axs = plt.subplots(2, 2, figsize=(12, 12))
     for i, truec in enumerate(criterions):
         response = signal > truec
         responses[:, i] += response
@@ -194,7 +198,7 @@ def test():
         print(sdt_metrics)
 
         _test_distribution_plot(
-            d=sdt_metrics['d'], sigmasignal=sdt_metrics['sigmasignal'], cpoint=sdt_metrics['criterion'], truec=truec)
+            d=sdt_metrics['d'], sigmasignal=sdt_metrics['sigmasignal'], cpoint=sdt_metrics['criterion'], truec=truec, ax=axs[i//2, i % 2])
 
         if i == 0:
             sdt_metrics = extract_sdt(
@@ -205,6 +209,10 @@ def test():
         print("\n"*2)
 
     # Plots and SDT metrics over different conditions (criterions)
+    axs[1, 1].legend()
+    plt.show()
+
+    # And overall
     print("SDT metrics over different conditions assuming unequal variance:")
     sdt_metrics = extract_sdt(responses, np.array(
         [signal_present]*len(criterions)).T, equal_var=False, distributions_plot=True, roc_plot=True)
