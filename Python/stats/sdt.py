@@ -1,4 +1,27 @@
 """Module to run different signal detection theory analyses.
+
+Usage example:
+import numpy as np
+
+# Load your data (signal present is the ground truth)
+response = np.array(your_response_data)
+signal_present = np.array(your_signal_present_data)
+
+# Extract SDT metrics (assuming equal variance in signal+noise and noise distributions)
+sdt_metrics = extract_sdt(response, signal_present, equal_var=True, distributions_plot=True, roc_plot=True)
+
+# Extract SDT metrics (assuming different variance in signal+noise and noise distributions)
+sdt_metrics = extract_sdt(response, signal_present, equal_var=False, distributions_plot=True, roc_plot=True)
+
+# Access the metrics
+d = sdt_metrics['d'] # d-prime
+c_coefficient = sdt_metrics['c'] # Coefficient-c
+criterion = sdt_metrics['criterion'] # Criterion point
+beta = sdt_metrics['beta'] # Beta coefficient
+logbeta = sdt_metrics['logbeta'] # Logarithm of beta
+AUC = sdt_metrics['AUC'] # Area under the curve
+hitrate = sdt_metrics['hitrate'] # Hit rate
+farate = sdt_metrics['farate'] # False alarm rate
 """
 import warnings
 import numpy as np
