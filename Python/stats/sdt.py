@@ -56,19 +56,19 @@ def plot_roc(hitrate: np.ndarray, farate: np.ndarray, auc: float = None) -> None
     plt.show()
 
 
-def plot_distributions(d: float, cpoint: float, sigmasignal: float):
+def plot_distributions(d: float, sigmasignal: float, cpoint: float = None):
     """Plots the signal+noise and noise distributions with the criterion point.
 
     Parameters:
     -----------
     d: float
         d-prime value.
-    cpoint: float
-        Criterion point.
     sigmasignal: float
         Standard deviation of the signal+noise distribution.
+    cpoint: float
+        (Optional) Criterion point. Default = None. If provided, a criterion line is plotted.
     """
-    n = 1000
+    n = 10000
 
     # Generate signal+noise and noise distributions
     noise = np.random.normal(loc=0, scale=1, size=n)
@@ -79,9 +79,12 @@ def plot_distributions(d: float, cpoint: float, sigmasignal: float):
     sns.histplot(noise, color=".2", kde=True, ax=ax, label='Noise')
     sns.histplot(signal, color="darkred", kde=True,
                  ax=ax, label='Signal+Noise')
-    ax.axvline(cpoint, color='black', linestyle='--', label='Criterion Point')
+    if cpoint:
+        ax.axvline(cpoint, color='black', linestyle='--',
+                   label='Criterion Point')
+        ax.set_xticks(list(ax.get_xticks()) + [cpoint])
     ax.set(xlabel='', ylabel='Density',
-           title='Signal+Noise and Noise Distributions\nCriterion Point = {:.2f}'.format(cpoint))
+           title=f'Signal+Noise and Noise Distributions\nd-prime = {d:.2f}')
     ax.legend()
     plt.show()
 
