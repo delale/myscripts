@@ -162,10 +162,12 @@ def extract_sdt(ypred: np.ndarray, ytrue: np.ndarray, equal_var: bool = False, d
         cpoint, loc=d, scale=sigmasignal) / stats.norm.pdf(cpoint, loc=0, scale=1)
     lnbeta: float = np.log(beta)
 
-    y: np.ndarray = np.sort(np.concatenate(
-        ([0], np.array(hitrate).flatten(), [1])))
-    x: np.ndarray = np.sort(np.concatenate(
-        ([0], np.array(farate).flatten(), [1])))
+    # Add 0 and 1 to hitrate and farate for ROC curve and AUC calculation
+    y: np.ndarray = np.concatenate(([0], np.array(hitrate).flatten(), [1]))
+    x: np.ndarray = np.concatenate(([0], np.array(farate).flatten(), [1]))
+    # sort by farate
+    y = y[np.argsort(x)]
+    x = np.sort(x)
     auc: float = integrate.simpson(y=y, x=x)
 
     sdt_metrics: dict = {'hitrate': hitrate, 'farate': farate, 'd': d, 'sigmasignal': sigmasignal, 'c': c,
