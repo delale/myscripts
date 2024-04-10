@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def plot_roc(hitrate: np.ndarray, farate: np.ndarray, auc: float = None) -> None:
+def plot_roc(hitrate: np.ndarray, farate: np.ndarray, auc: float = None, ax=None) -> None:
     """Plots the ROC curve.
 
     Parameters:
@@ -44,19 +44,25 @@ def plot_roc(hitrate: np.ndarray, farate: np.ndarray, auc: float = None) -> None
         False alarm rate values (sorted and with 0 and 1 at the ends).
     auc: float
         Area under the curve. If provided, it will be displayed in the plot title.
+    ax: plt.Axes
+        (Optional) Axes to plot the ROC curve. Default = None.
     """
     # Plot ROC curve
     title = 'ROC Curve'
-    fig, ax = plt.subplots(figsize=(8, 8))
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(8, 8))
     ax.plot(farate, hitrate, marker='o')
     ax.plot([0, 1], [0, 1], linestyle='--', color='gray')
     if auc is not None:
         title = 'ROC Curve\nAUC = {:.2f}'.format(auc)
     ax.set(xlabel='False Alarm Rate', ylabel='Hit Rate', title=title)
-    plt.show()
+    if ax is None:
+        plt.show()
+    else:
+        return ax
 
 
-def plot_distributions(d: float, sigmasignal: float, cpoint: float = None):
+def plot_distributions(d: float, sigmasignal: float, cpoint: float = None, ax=None):
     """Plots the signal+noise and noise distributions with the criterion point.
 
     Parameters:
@@ -67,6 +73,8 @@ def plot_distributions(d: float, sigmasignal: float, cpoint: float = None):
         Standard deviation of the signal+noise distribution.
     cpoint: float
         (Optional) Criterion point. Default = None. If provided, a criterion line is plotted.
+    ax: plt.Axes
+        (Optional) Axes to plot the distributions. Default = None.
     """
     n = 10000
 
@@ -75,7 +83,8 @@ def plot_distributions(d: float, sigmasignal: float, cpoint: float = None):
     signal = np.random.normal(loc=d, scale=sigmasignal, size=n)
 
     # Plot distributions
-    fig, ax = plt.subplots(figsize=(8, 8))
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(8, 8))
     sns.histplot(noise, color=".2", kde=True,
                  stat='density', ax=ax, label='Noise')
     sns.histplot(signal, color="darkred", kde=True, stat='density',
@@ -87,7 +96,10 @@ def plot_distributions(d: float, sigmasignal: float, cpoint: float = None):
     ax.set(xlabel='', ylabel='Frequency',
            title=f'Signal+Noise and Noise Distributions\nd-prime = {d:.2f}')
     ax.legend()
-    plt.show()
+    if ax is None:
+        plt.show()
+    else:
+        return ax
 
 
 def extract_sdt(ypred: np.ndarray, ytrue: np.ndarray, equal_var: bool = False, distributions_plot: bool = False, roc_plot: bool = False) -> dict:
@@ -172,7 +184,7 @@ def extract_sdt(ypred: np.ndarray, ytrue: np.ndarray, equal_var: bool = False, d
     # sort by farate
     y = y[np.argsort(x)]
     x = np.sort(x)
-    auc: float = integrate.simpson(y=y, x=x)
+    auc: float = integrate.trapezoid(y=y, x=x)
 
     sdt_metrics: dict = {'hitrate': hitrate, 'farate': farate, 'd': d, 'sigmasignal': sigmasignal, 'c': c,
                          'beta': beta, 'logbeta': lnbeta, 'criterion': cpoint, 'AUC': auc}
