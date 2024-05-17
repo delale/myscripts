@@ -102,7 +102,7 @@ def plot_distributions(d: float, sigmasignal: float, cpoint: float = None, ax=No
         return ax
 
 
-def extract_sdt(ypred: np.ndarray, ytrue: np.ndarray, equal_var: bool = False, distributions_plot: bool = False, roc_plot: bool = False) -> dict:
+def extract_sdt(ypred: np.ndarray, ytrue: np.ndarray, equal_var: bool = False, distributions_plot: bool = False, roc_plot: bool = False, use_loglinear_correction: bool = False) -> dict:
     """Extracts signal detection theory metrics from predicted and true labels.
 
     Parameters:
@@ -117,6 +117,8 @@ def extract_sdt(ypred: np.ndarray, ytrue: np.ndarray, equal_var: bool = False, d
         Whether to plot the ROC curve.
     distributions_plot: bool
         Whether to plot the signal+noise and noise distributions.
+    use_loglinear_correction: bool
+        Whether to use the log-linear correction for SDT calculations.
 
     Returns:
     --------
@@ -128,10 +130,30 @@ def extract_sdt(ypred: np.ndarray, ytrue: np.ndarray, equal_var: bool = False, d
     # Hits and False Alarms
     hits: np.ndarray = np.sum((ypred == 1) & (ytrue == 1), axis=0)
     fas: np.ndarray = np.sum((ypred == 1) & (ytrue == 0), axis=0)
+    signal_trials = np.sum(ytrue == 1, axis=0)
+    noise_trials = np.sum(ytrue == 0, axis=0)
+
+    if use_loglinear_correction:
+        signal_proportion = signal_trials / (signal_trials + noise_trials)
+        noise_proportion = noise_trials / (signal_trials + noise_trials)
+        hits = hits + signal_proportion
+        fas = fas + noise_proportion
+        signal_trials = signal_trials + 2 * signal_proportion
+        noise_trials = noise_trials + 2 * noise_proportion
+
+    if np.any(hits == 0) or np.any(fas == 0) or np.any(hits == np.sum(ytrue == 1)) or np.any(fas == np.sum(ytrue == 0)):
+        warnings.warn(
+            "Hit rate or False Alarm rate is 0 or 1. Adjusting for SDT calculations using the loglinear approach (Hautus, 1995).")
+        signal_proportion = signal_trials / (signal_trials + noise_trials)
+        noise_proportion = noise_trials / (signal_trials + noise_trials)
+        hits = hits + signal_proportion
+        fas = fas + noise_proportion
+        signal_trials = signal_trials + 2 * signal_proportion
+        noise_trials = noise_trials + 2 * noise_proportion
 
     # Hit rate and False Alarm rate
-    hitrate: np.ndarray = hits / np.sum(ytrue == 1, axis=0)
-    farate: np.ndarray = fas / np.sum(ytrue == 0, axis=0)
+    hitrate: np.ndarray = hits / signal_trials
+    farate: np.ndarray = fas / noise_trials
 
     # z-scores
     zhit = stats.norm.ppf(hitrate)
