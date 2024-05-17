@@ -15,8 +15,12 @@ Contact: alessandro.deluca@uzh.ch
 """
 import argparse
 import os
-import subprocess
 import logging
+import shutil as sh
+import subprocess
+import whisper
+import parselmouth
+from parselmouth import praat
 
 
 def transcribe_audio(path_to_corpus: str, language=None, model="large-v2", overwrite=False) -> None:
@@ -123,6 +127,103 @@ def align_audio(
     return None
 
 
+def _make_textgrid_from_transcription(transcription: dict, duration: float) -> parselmouth.TextGrid:
+    """Makes TextGrid from Whisper transcription."""
+    tier_names = ['text', 'segments']
+    if 'words' in transcription['segments'][0]:
+        tier_names.append('words')
+    tg = parselmouth.TextGrid(
+        start_time=0.0, end_time=duration, tier_names=tier_names)
+
+    # Add boundaries and labels to the TextGrid
+    praat.call(tg, "Set interval text", 1, 1,
+               transcription['text'])  # text tier
+    j = 0
+    for i, segment in enumerate(transcription['segments']):
+        # segments tier
+        # add boundaries
+        interval_num = i + 1
+        if not segment['end'] >= duration:
+            praat.call(tg, "Insert boundary", 2, segment['end'])
+        else:
+            interval_num += 1
+        # add label
+        praat.call(tg, "Set interval text", 2, interval_num, segment['text'])
+
+        if 'words' in segment:
+            for k, word in enumerate(segment['words']):
+                interval_num = j + 1
+                if not word['start'] == segment['start'] and k == 0:
+                    praat.call(tg, "Insert boundary", 3, word['start'])
+                if not word['end'] >= duration:
+                    praat.call(tg, "Insert boundary", 3, word['end'])
+                else:
+                    interval_num += 1
+                # add label
+                praat.call(tg, "Set interval text", 3,
+                           interval_num, word['word'])
+                j += 1
+
+    return tg
+
+
+def whisper_transcribe_align(
+    path_to_corpus: str, language: str = None, model: str = "large-v2",
+    word_segmentation: bool = False, output_path: str = None, overwrite=False
+) -> None:
+    """Function to transcribe audio and align it using purely Whisper to a TextGrid.
+    Alignment is done at the segment or word (if word_segmentation = True) level.
+
+    Args:
+        path_to_corpus: Path to the corpus containing the audio files.
+        language: Language of the corpus. If None, automatically detected by Whisper (default=None).
+        model: Name of Whisper model to use (default='large-v2').
+        word_segmentation: Perform word-level segmentation (default=False).
+        output_path: Path to the output directory. If None, path_to_corpus is used (default=None).
+        overwrite: Overwrite transcriptions if they are present (default=False).
+    """
+    logger = logging.getLogger(os.path.join(
+        path_to_corpus, "../auto-transcalign.log"))
+    audio_files = os.listdir(
+        path_to_corpus)    # get all files in input directory
+
+    logger.info(f"Selected Whisper-Align opt on {path_to_corpus} corpus.")
+
+    model = whisper.load_model(model)
+
+    if output_path is None:
+        output_path = path_to_corpus
+
+    logger.info(f'Processing {len(audio_files)} files...')
+    naudio = 0
+    for audio in audio_files:
+        if audio.endswith(".wav") or audio.endswith('.flac') or audio.endswith('.mp3'):
+            naudio += 1
+            # if overwrite is True or if the transcription does not exist
+            if overwrite or os.path.splitext(audio)[0]+".TextGrid" not in audio_files:
+                logger.info(f"Transcribing {audio}")
+                # copy to output path
+                if output_path != path_to_corpus:
+                    sh.copy(os.path.join(path_to_corpus, audio), output_path)
+                # transcribe
+                signal = whisper.audio.load_audio(
+                    os.path.join(path_to_corpus, audio))
+                transcription = model.transcribe(
+                    signal, word_timestamps=word_segmentation, language=language)
+
+                # save transcription
+                dur = len(signal) / 16000  # default sample rate
+                tg = _make_textgrid(transcription, dur)
+                tg.save(os.path.join(output_path,
+                        os.path.splitext(audio)[0]+".TextGrid"))
+            else:
+                logger.info(
+                    f'Overwrite: {overwrite}; {audio} already transcribed.')
+
+    logger.info(f"Transcribed {naudio} audio files; output in {output_path}.")
+    return None
+
+
 def main():
     # init parser
     parser = argparse.ArgumentParser(
@@ -137,6 +238,9 @@ def main():
     parser.add_argument(
         "path_to_corpus", help="Path to the corpus containing the audio files."
     )
+    parser.add_argument(
+        "--whisper_align", help="Use Whisper for transcription and alignment.", default=False, type=bool
+    )   # if True, use Whisper for transcription and alignment
 
     whisper_arguments = [
         {'name': "language",
@@ -170,10 +274,26 @@ def main():
             'help': "[MFA arg] Set the number of processes to use (default=3).", 'default': 3, 'type': int}
     ]
 
+    whisper_align_arguments = [
+        {'name': 'output_path',
+            'help': '[Whisper-Align arg] Path to the output directory. If None, path_to_corpus is used (default=None).', 'default': None, 'type': str},
+        {'name': 'language',
+            'help': '[Whisper-Align arg] Language of the corpus. If None, automatically detected by Whisper (default=None).', 'default': None, 'type': str},
+        {'name': 'model',
+            'help': '[Whisper-Align arg] Name of Whisper model to use (default=large-v2).', 'default': 'large-v2', 'type': str},
+        {'name': 'word_segmentation',
+            'help': '[Whisper-Align arg] Perform word-level segmentation (default=False).', 'default': False, 'type': bool},
+        {'name': 'overwrite',
+            'help': '[Whisper-Align] Overwrite transcriptions if they are present (default=False).', 'default': False, 'type': bool}
+    ]
+
     for arg_info in whisper_arguments:
         parser.add_argument(
             "--"+arg_info['name'], nargs="*", help=arg_info['help'], default=arg_info['default'], type=arg_info['type'])
     for arg_info in mfa_arguments:
+        parser.add_argument(
+            "--"+arg_info['name'], nargs="*", help=arg_info['help'], default=arg_info['default'], type=arg_info['type'])
+    for arg_info in whisper_align_arguments:
         parser.add_argument(
             "--"+arg_info['name'], nargs="*", help=arg_info['help'], default=arg_info['default'], type=arg_info['type'])
 
@@ -188,6 +308,10 @@ def main():
     mfa_args = {arg: getattr(args, arg)[0] if isinstance(getattr(args, arg), list) else getattr(args, arg) for arg in [
         arg_info['name'] for arg_info in mfa_arguments]}
 
+    # extract whisper-align args
+    whisper_align_args = {arg: getattr(args, arg)[0] if isinstance(getattr(args, arg), list) else getattr(args, arg) for arg in [
+        arg_info['name'] for arg_info in whisper_align_arguments]}
+
     # Setup logging
     logging.basicConfig(
         filename=os.path.join(path_to_corpus, "../auto-transcalign.log"), level=logging.DEBUG,
@@ -196,13 +320,18 @@ def main():
     logger = logging.getLogger(os.path.join(
         path_to_corpus, "../auto-transcalign.log"))
 
-    # Transcribe audio
-    transcribe_audio(path_to_corpus=path_to_corpus, **whisper_args)
-    logger.info("Finished transcription!\n\n")
+    if not args.whisper_align:
+        # Transcribe audio
+        transcribe_audio(path_to_corpus=path_to_corpus, **whisper_args)
+        logger.info("Finished transcription!\n\n")
 
-    # Align audio
-    align_audio(path_to_corpus=path_to_corpus, **mfa_args)
-    logger.info("Finished alignment.")
+        # Align audio
+        align_audio(path_to_corpus=path_to_corpus, **mfa_args)
+        logger.info("Finished alignment.")
+    else:
+        whisper_transcribe_align(
+            path_to_corpus=path_to_corpus, **whisper_align_args)
+        logger.info("Finished Whisper-Align transcription and alignment.")
 
 
 if __name__ == "__main__":
