@@ -152,7 +152,7 @@ def _make_textgrid_from_transcription(transcription: dict, duration: float) -> p
         # segments tier
         # add boundaries
         interval_num = i + 1
-        if not segment['end'] >= duration:
+        if not segment['end'] >= duration and :
             praat.call(tg, "Insert boundary", 2, segment['end'])
 
         # add label
@@ -161,13 +161,21 @@ def _make_textgrid_from_transcription(transcription: dict, duration: float) -> p
         if 'words' in segment:
             for k, word in enumerate(segment['words']):
                 interval_num = j + 1
-                if not word['end'] >= duration:
+                if not word['end'] >= duration and not (word['end'] == word['start']):
                     praat.call(tg, "Insert boundary", 3, word['end'])
 
-                # add label
-                praat.call(tg, "Set interval text", 3,
-                           interval_num, word['word'])
-                j += 1
+                if word['end'] == word['start'] and k > 0:
+                    interval_num -= 1
+                    praat.call(tg, "Set interval text", 3,
+                               interval_num, segment['words'][k - 1]['word'] + word['word'])
+                else:
+                    if word['end'] == word['start'] and k == 0:
+                        praat.call(tg, "Insert boundary",
+                                   3, word['end'] + 0.001)
+                    # add label
+                    praat.call(tg, "Set interval text", 3,
+                               interval_num, word['word'])
+                    j += 1
 
     return tg
 
@@ -187,19 +195,19 @@ def whisper_transcribe_align(
         output_path: Path to the output directory. If None, path_to_corpus is used (default=None).
         overwrite: Overwrite transcriptions if they are present (default=False).
     """
-    logger = logging.getLogger(os.path.join(
-        path_to_corpus, "../auto-transcalign.log"))
     audio_files = os.listdir(
         path_to_corpus)    # get all files in input directory
-
-    logger.info(f"Selected Whisper-Align opt on {path_to_corpus} corpus.")
-
-    model = whisper.load_model(model)
+    model = whisper.load_model(model)  #  load whisper model
 
     if output_path is None:
         output_path = path_to_corpus
     elif not os.path.exists(output_path):
         os.makedirs(output_path)
+
+    logger = logging.getLogger(os.path.join(
+        output_path, "../auto-transcalign.log"))
+
+    logger.info(f"Selected Whisper-Align opt on {path_to_corpus} corpus.")
 
     logger.info(f'Processing {len(audio_files)} files...')
     naudio = 0
