@@ -335,11 +335,11 @@ def main():
             path_to_corpus, "../auto-transcalign.log"))
     else:
         logging.basicConfig(
-            filename=os.path.join(mfa_args['output_path'], "../auto-transcalign.log"), level=logging.DEBUG,
+            filename=os.path.join(mfa_args['output_path'], "auto-transcalign.log"), level=logging.DEBUG,
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
         logger = logging.getLogger(os.path.join(
-            mfa_args['output_path'], "../auto-transcalign.log"))
+            mfa_args['output_path'], "auto-transcalign.log"))
 
     if not args.whisper_align:
         # Transcribe audio
