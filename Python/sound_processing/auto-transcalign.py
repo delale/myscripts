@@ -154,17 +154,21 @@ def _make_textgrid_from_transcription(transcription: dict, duration: float) -> p
                transcription['text'])  # text tier
     j = 0
     i = 0
+    same_boundary_segment = 0
+    same_boundary_segment_word = 0
     for ii, segment in enumerate(transcription['segments']):
         # segments tier
         # add boundaries
         interval_num = i + 1
         if not segment['end'] >= duration and not (segment['end'] == segment['start']):
+            same_boundary_segment = 0
             praat.call(tg, "Insert boundary", 2, segment['end'])
 
         if segment['end'] == segment['start'] and ii > 0:
             interval_num -= 1
+            same_boundary_segment += 1
             praat.call(tg, "Set interval text", 2, interval_num,
-                       transcription['segments'][ii - 1]['text'] + segment['text'])
+                       " ".join([transcription['segments'][x]['text'] for x in range(ii-same_boundary_segment, ii)]) + segment['text'])
         else:
             if segment['end'] == segment['start'] and ii == 0:
                 praat.call(tg, "Insert boundary", 2, segment['end'] + 0.001)
@@ -178,12 +182,15 @@ def _make_textgrid_from_transcription(transcription: dict, duration: float) -> p
             for jj, word in enumerate(segment['words']):
                 interval_num = j + 1
                 if not word['end'] >= duration and not (word['end'] == word['start']):
+                    same_boundary_segment_word = 0
                     praat.call(tg, "Insert boundary", 3, word['end'])
 
                 if word['end'] == word['start'] and jj > 0:
                     interval_num -= 1
+                    same_boundary_segment_word += 1
                     praat.call(tg, "Set interval text", 3,
-                               interval_num, segment['words'][jj - 1]['word'] + word['word'])
+                               interval_num,
+                               " ".join([segment['words'][x]['word'] for x in range(jj-same_boundary_segment_word, jj)]) + word['word'])
                 else:
                     if word['end'] == word['start'] and jj == 0:
                         praat.call(tg, "Insert boundary",
