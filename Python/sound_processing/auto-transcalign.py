@@ -96,6 +96,8 @@ def align_audio(
 
     if output_path is None:
         output_path = path_to_corpus
+    elif not os.path.exists(output_path):
+        os.makedirs(output_path)
 
     # Create mfa command
     if speaker_characters:
@@ -145,20 +147,16 @@ def _make_textgrid_from_transcription(transcription: dict, duration: float) -> p
         interval_num = i + 1
         if not segment['end'] >= duration:
             praat.call(tg, "Insert boundary", 2, segment['end'])
-        else:
-            interval_num += 1
+
         # add label
         praat.call(tg, "Set interval text", 2, interval_num, segment['text'])
 
         if 'words' in segment:
             for k, word in enumerate(segment['words']):
                 interval_num = j + 1
-                if not word['start'] == segment['start'] and k == 0:
-                    praat.call(tg, "Insert boundary", 3, word['start'])
                 if not word['end'] >= duration:
                     praat.call(tg, "Insert boundary", 3, word['end'])
-                else:
-                    interval_num += 1
+
                 # add label
                 praat.call(tg, "Set interval text", 3,
                            interval_num, word['word'])
@@ -193,6 +191,8 @@ def whisper_transcribe_align(
 
     if output_path is None:
         output_path = path_to_corpus
+    elif not os.path.exists(output_path):
+        os.makedirs(output_path)
 
     logger.info(f'Processing {len(audio_files)} files...')
     naudio = 0
@@ -213,7 +213,7 @@ def whisper_transcribe_align(
 
                 # save transcription
                 dur = len(signal) / 16000  # default sample rate
-                tg = _make_textgrid(transcription, dur)
+                tg = _make_textgrid_from_transcription(transcription, dur)
                 tg.save(os.path.join(output_path,
                         os.path.splitext(audio)[0]+".TextGrid"))
             else:
@@ -275,16 +275,8 @@ def main():
     ]
 
     whisper_align_arguments = [
-        {'name': 'output_path',
-            'help': '[Whisper-Align arg] Path to the output directory. If None, path_to_corpus is used (default=None).', 'default': None, 'type': str},
-        {'name': 'language',
-            'help': '[Whisper-Align arg] Language of the corpus. If None, automatically detected by Whisper (default=None).', 'default': None, 'type': str},
-        {'name': 'model',
-            'help': '[Whisper-Align arg] Name of Whisper model to use (default=large-v2).', 'default': 'large-v2', 'type': str},
         {'name': 'word_segmentation',
             'help': '[Whisper-Align arg] Perform word-level segmentation (default=False).', 'default': False, 'type': bool},
-        {'name': 'overwrite',
-            'help': '[Whisper-Align] Overwrite transcriptions if they are present (default=False).', 'default': False, 'type': bool}
     ]
 
     for arg_info in whisper_arguments:
@@ -330,7 +322,8 @@ def main():
         logger.info("Finished alignment.")
     else:
         whisper_transcribe_align(
-            path_to_corpus=path_to_corpus, **whisper_align_args)
+            path_to_corpus=path_to_corpus, output_path=mfa_args['output_path'],
+            **whisper_args, **whisper_align_args)
         logger.info("Finished Whisper-Align transcription and alignment.")
 
 
