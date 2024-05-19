@@ -152,7 +152,7 @@ def _make_textgrid_from_transcription(transcription: dict, duration: float) -> p
         # segments tier
         # add boundaries
         interval_num = i + 1
-        if not segment['end'] >= duration and :
+        if not segment['end'] >= duration:
             praat.call(tg, "Insert boundary", 2, segment['end'])
 
         # add label
