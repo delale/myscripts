@@ -30,7 +30,7 @@ import parselmouth
 from parselmouth import praat
 
 
-def transcribe_audio(path_to_corpus: str, language=None, model="large-v2", overwrite=False) -> None:
+def transcribe_audio(path_to_corpus: str, language=None, model="large-v2", overwrite=False, logger=None) -> None:
     """Transcribe audio using Whisper and the large-v2 model.
 
     Args:
@@ -38,9 +38,12 @@ def transcribe_audio(path_to_corpus: str, language=None, model="large-v2", overw
         language: Language of the corpus. If None, automatically detected by Whisper (default=None).
         model: Name of Whisper model to use (default='large-v2').
         overwrite: Overwrite transcriptions if they are present (default=False).
+        logger: Logger object (default=None).
     """
-    logger = logging.getLogger(os.path.join(
-        path_to_corpus, "../auto-transcalign.log"))
+    if logger is None:
+        logger = logging.getLogger(os.path.join(
+            path_to_corpus, "../auto-transcalign.log"))
+
     audio_files = os.listdir(
         path_to_corpus)    # get all files in input directory
 
@@ -81,7 +84,7 @@ def align_audio(
         path_to_corpus: str, output_path=None, speaker_characters=None,
         dictionary="english_us_mfa", acoustic_model="english_mfa", clean=False,
         beam=100, retry_beam=400, include_original_text=True,
-        textgrid_cleanup=True, num_jobs=3
+        textgrid_cleanup=True, num_jobs=3, logger=None
 ) -> None:
     """Force-aligns all audio files in the corpus using MFA.
 
@@ -97,9 +100,11 @@ def align_audio(
         include_original_text: Include original utterance text in the output (default=True).
         textgrid_cleanup: Post-processing of TextGrids that cleans up silences and recombines compound words and clitics (default=True).
         num_jobs: Set the number of processes to use (default=3).
+        logger: Logger object (default=None).
     """
-    logger = logging.getLogger(os.path.join(
-        path_to_corpus, "../auto-transcalign.log"))
+    if logger is None:
+        logger = logging.getLogger(os.path.join(
+            path_to_corpus, "../auto-transcalign.log"))
 
     if output_path is None:
         output_path = path_to_corpus
@@ -182,7 +187,7 @@ def _make_textgrid_from_transcription(transcription: dict, duration: float) -> p
 
 def whisper_transcribe_align(
     path_to_corpus: str, language: str = None, model: str = "large-v2",
-    word_segmentation: bool = False, output_path: str = None, overwrite=False
+    word_segmentation: bool = False, output_path: str = None, overwrite=False, logger=None
 ) -> None:
     """Function to transcribe audio and align it using purely Whisper to a TextGrid.
     Alignment is done at the segment or word (if word_segmentation = True) level.
@@ -194,7 +199,13 @@ def whisper_transcribe_align(
         word_segmentation: Perform word-level segmentation (default=False).
         output_path: Path to the output directory. If None, path_to_corpus is used (default=None).
         overwrite: Overwrite transcriptions if they are present (default=False).
+        logger: Logger object (default=None).
     """
+    if logger is None:
+        logger = logging.getLogger(os.path.join(
+            path_to_corpus, "../auto-transcalign.log"))
+
+    logger.info(f"Selected Whisper-Align opt on {path_to_corpus} corpus.")
     audio_files = os.listdir(
         path_to_corpus)    # get all files in input directory
     model = whisper.load_model(model)  #  load whisper model
@@ -203,11 +214,6 @@ def whisper_transcribe_align(
         output_path = path_to_corpus
     elif not os.path.exists(output_path):
         os.makedirs(output_path)
-
-    logger = logging.getLogger(os.path.join(
-        output_path, "../auto-transcalign.log"))
-
-    logger.info(f"Selected Whisper-Align opt on {path_to_corpus} corpus.")
 
     logger.info(f'Processing {len(audio_files)} files...')
     naudio = 0
@@ -320,25 +326,34 @@ def main():
         arg_info['name'] for arg_info in whisper_align_arguments]}
 
     # Setup logging
-    logging.basicConfig(
-        filename=os.path.join(path_to_corpus, "../auto-transcalign.log"), level=logging.DEBUG,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-    logger = logging.getLogger(os.path.join(
-        path_to_corpus, "../auto-transcalign.log"))
+    if mfa_args['output_path'] is None:
+        logging.basicConfig(
+            filename=os.path.join(path_to_corpus, "../auto-transcalign.log"), level=logging.DEBUG,
+            format='%(asctime)s - %(levelname)s - %(message)s'
+        )
+        logger = logging.getLogger(os.path.join(
+            path_to_corpus, "../auto-transcalign.log"))
+    else:
+        logging.basicConfig(
+            filename=os.path.join(mfa_args['output_path'], "../auto-transcalign.log"), level=logging.DEBUG,
+            format='%(asctime)s - %(levelname)s - %(message)s'
+        )
+        logger = logging.getLogger(os.path.join(
+            mfa_args['output_path'], "../auto-transcalign.log"))
 
     if not args.whisper_align:
         # Transcribe audio
-        transcribe_audio(path_to_corpus=path_to_corpus, **whisper_args)
+        transcribe_audio(path_to_corpus=path_to_corpus,
+                         logger=logger, **whisper_args)
         logger.info("Finished transcription!\n\n")
 
         # Align audio
-        align_audio(path_to_corpus=path_to_corpus, **mfa_args)
+        align_audio(path_to_corpus=path_to_corpus, logger=logger, **mfa_args)
         logger.info("Finished alignment.")
     else:
         whisper_transcribe_align(
             path_to_corpus=path_to_corpus, output_path=mfa_args['output_path'],
-            **whisper_args, **whisper_align_args)
+            logger=logger, **whisper_args, **whisper_align_args)
         logger.info("Finished Whisper-Align transcription and alignment.")
 
 
