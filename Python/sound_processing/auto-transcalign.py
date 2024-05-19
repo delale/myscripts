@@ -153,28 +153,39 @@ def _make_textgrid_from_transcription(transcription: dict, duration: float) -> p
     praat.call(tg, "Set interval text", 1, 1,
                transcription['text'])  # text tier
     j = 0
-    for i, segment in enumerate(transcription['segments']):
+    i = 0
+    for ii, segment in enumerate(transcription['segments']):
         # segments tier
         # add boundaries
         interval_num = i + 1
-        if not segment['end'] >= duration:
+        if not segment['end'] >= duration and not (segment['end'] == segment['start']):
             praat.call(tg, "Insert boundary", 2, segment['end'])
 
-        # add label
-        praat.call(tg, "Set interval text", 2, interval_num, segment['text'])
+        if segment['end'] == segment['start'] and ii > 0:
+            interval_num -= 1
+            praat.call(tg, "Set interval text", 2, interval_num,
+                       transcription['segments'][ii - 1]['text'] + segment['text'])
+        else:
+            if segment['end'] == segment['start'] and ii == 0:
+                praat.call(tg, "Insert boundary", 2, segment['end'] + 0.001)
+
+            # add label
+            praat.call(tg, "Set interval text", 2,
+                       interval_num, segment['text'])
+            i += 1
 
         if 'words' in segment:
-            for k, word in enumerate(segment['words']):
+            for jj, word in enumerate(segment['words']):
                 interval_num = j + 1
                 if not word['end'] >= duration and not (word['end'] == word['start']):
                     praat.call(tg, "Insert boundary", 3, word['end'])
 
-                if word['end'] == word['start'] and k > 0:
+                if word['end'] == word['start'] and jj > 0:
                     interval_num -= 1
                     praat.call(tg, "Set interval text", 3,
-                               interval_num, segment['words'][k - 1]['word'] + word['word'])
+                               interval_num, segment['words'][jj - 1]['word'] + word['word'])
                 else:
-                    if word['end'] == word['start'] and k == 0:
+                    if word['end'] == word['start'] and jj == 0:
                         praat.call(tg, "Insert boundary",
                                    3, word['end'] + 0.001)
                     # add label
