@@ -9,6 +9,13 @@ Written for MacOS -> no GPU acceleration on openai-whisper 1.1.10 and montreal-f
 Usage:
     python3 auto-transcalign.py <path_to_corpus> <**optional arguments>
 
+Example:
+    # Transcribing and aligning audio files using Whisper and MFA (english and using large-v2 model)
+    python3 auto-transcalign.py /path/to/corpus --output_path /path/to/output --language en --model large-v2
+
+    # Transcribing and aligning audio files using only Whisper (+ word segmentation) (english and using base model)
+    python3 auto-transcalign.py /path/to/corpus --output_path /path/to/output --whisper_align True --word_segmentation True --language en --model base
+
 Author: Alessandro De Luca
 Date: 10-2023
 Contact: alessandro.deluca@uzh.ch
@@ -118,7 +125,7 @@ def align_audio(
     else:
         mfa_cmd += " --no_textgrid_cleanup"
 
-    # Run mfa command
+    # Run mfa commandi
     logger.info(f"MFA on {path_to_corpus} corpus; output in {output_path}")
     logger.info(f"Running MFA command: {mfa_cmd}")
     try:
