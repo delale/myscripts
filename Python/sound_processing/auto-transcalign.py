@@ -352,6 +352,8 @@ def main():
         logger = logging.getLogger(os.path.join(
             path_to_corpus, "../auto-transcalign.log"))
     else:
+        if not os.path.exists(mfa_args['output_path']):
+            os.makedirs(mfa_args['output_path'])
         logging.basicConfig(
             filename=os.path.join(mfa_args['output_path'], "auto-transcalign.log"), level=logging.DEBUG,
             format='%(asctime)s - %(levelname)s - %(message)s'
