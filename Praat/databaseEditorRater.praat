@@ -19,6 +19,8 @@ form databaseExplorerRater...
     folder inDir /Users/aledel/Documents/
     folder outDir /Users/aledel/Documents/
     boolean editOnly 0
+    boolean rateOnly 0
+    boolean hasTextGrid 1
 	choice Sampling_frequency_(Hz) 7
 		button 8000
 		button 10000
@@ -35,7 +37,7 @@ endform
 
 # Create a table to store the results
 if not editOnly
-	Create Table with column names: "rating", 0, "source_file filename tot_duration sampling_freq n_channels VAD_duration quality"
+	Create Table with column names: "rating", 0, "source_file filename tot_duration sampling_freq n_channels VAD_duration quality comment"
 	quality = 1
 endif
 
@@ -52,8 +54,10 @@ for iFile to nFiles
 	appendInfoLine: "Reading: " + filename$
     sound = Read from file: inDir$ + "/" + filename$
 	fileID$ = left$ (filename$, length (filename$) - 4)
+    if hasTextGrid
+        grid = Read from file: inDir$ + "/" + fileID$ + ".TextGrid"
+    endif
 
-    # Display the audio file (waveform + spectrogram)
     selectObject: sound
 
 	# Resample (if selected)
@@ -61,6 +65,13 @@ for iFile to nFiles
 		sound = Resample: number(sampling_frequency$), 50
 		selectObject: sound
 	endif
+    
+    # add textgrid
+    if hasTextGrid
+        plusObject: grid
+    endif
+    
+    # Display the audio file (waveform + spectrogram)
     Edit
     if editOnly
         # editor form
@@ -68,11 +79,10 @@ for iFile to nFiles
             comment: "Click Continue when you are finished editing."
             word: "New file name", filename$
         endPause: "Continue", 1
-    else
+    elsif rateOnly
         # quality rating form
         beginPause: "Rate quality"
             comment: "Rate the quality of the soundfile and when finished click Continue"
-            word: "New file name", filename$
             optionMenu: "Quality", quality
                 option: "excellent"
                 option: "good"
@@ -80,10 +90,29 @@ for iFile to nFiles
                 option: "poor"
                 option: "worst"
         endPause: "Continue", 1
+    else
+        # editor and rating form
+        beginPause: "Edit and rate"
+            comment: "Edit the sound file and rate the quality. When finished click Continue"
+            word: "New file name", filename$
+            optionMenu: "Quality", quality
+                option: "excellent"
+                option: "good"
+                option: "fair"
+                option: "poor"
+                option: "worst"
+            sentence: "Comment", ""
+        endPause: "Continue", 1
     endif
+
     # close editor
-    editor: sound
-        Close
+	if hasTextGrid
+		editor: grid
+			Close
+	else
+	    editor: sound
+	        Close
+	endif
 
     # Correctly format the new file name
     has_extension = endsWith (new_file_name$, ".wav")
@@ -120,24 +149,36 @@ for iFile to nFiles
         Set numeric value: nRows + 1, "n_channels", nChannels
         Set numeric value: nRows + 1, "VAD_duration", vadspeechDur
         Set string value: nRows + 1, "quality", quality$
+        Set string value: nRows + 1, "comment", comment$
         appendInfoLine: "Finished"
     endif
 
     # Save the audio file
-    appendInfoLine: "Saving sound... "
-    selectObject: sound
-    if number(quantization$) == 24
-        Save as 24-bit WAV file: outDir$ + "/" + new_file_name$
-    elsif number(quantization$) == 32
-        Save as 32-bit WAV file: outDir$ + "/" + new_file_name$
-    else
-        Save as WAV file: outDir$ + "/" + new_file_name$
-    endif
+    if not rateOnly
+        appendInfoLine: "Saving sound... "
+        selectObject: sound
+        if number(quantization$) == 24
+            Save as 24-bit WAV file: outDir$ + "/" + new_file_name$
+        elsif number(quantization$) == 32
+            Save as 32-bit WAV file: outDir$ + "/" + new_file_name$
+        else
+            Save as WAV file: outDir$ + "/" + new_file_name$
+        endif
 
-	appendInfoLine: "Saved: " + new_file_name$
+        if hasTextGrid
+            selectObject: grid
+            new_file_name$ = left$ (new_file_name$, length (new_file_name$) - 4) + ".TextGrid"
+            Save as text file: outDir$ + "/" + new_file_name$
+        endif
+
+        appendInfoLine: "Saved: " + new_file_name$
+    endif
 
     # Remove objects
     selectObject: sound
+    if hasTextGrid
+        plusObject: grid
+    endif
 	if not editOnly
     		plusObject: tg
 	endif
@@ -152,8 +193,17 @@ if not editOnly
     # Save the table
     appendInfoLine: "Saving table..."
     selectObject: "Table rating"
-    Save as comma-separated file: outDir$ + "/soundDirInfo.csv"
-	appendInfoLine: "Saved table: " + outDir$ + "/soundDirInfo.csv"
+    beginPause: "Save table"
+        comment: "Save the table with the sound file information."
+        word: "Table file name", "/soundDirInfo.csv"
+    endPause: "Save", 1
+    # Correctly format the new file name
+    has_extension = endsWith (table_file_name$, ".csv")
+    if not has_extension
+        table_file_name$ = table_file_name$ + ".csv"
+    endif
+    Save as comma-separated file: outDir$ + table_file_name$
+	appendInfoLine: "Saved table: " + outDir$ + table_file_name$
 endif
 
 # Close all objects
