@@ -21,6 +21,7 @@ form databaseExplorerRater...
     boolean editOnly 0
     boolean rateOnly 0
     boolean hasTextGrid 1
+    boolean noVAD 1
 	choice Sampling_frequency_(Hz) 7
 		button 8000
 		button 10000
@@ -37,8 +38,13 @@ endform
 
 # Create a table to store the results
 if not editOnly
-	Create Table with column names: "rating", 0, "source_file filename tot_duration sampling_freq n_channels VAD_duration quality comment"
-	quality = 1
+    if not noVAD
+	    Create Table with column names: "rating", 0, "source_file filename tot_duration sampling_freq n_channels VAD_duration quality comment"
+	    quality = 1
+    else
+        Create Table with column names: "rating", 0, "source_file filename tot_duration sampling_freq n_channels quality comment"
+        quality = 1
+    endif
 endif
 
 # Get files
@@ -128,11 +134,15 @@ for iFile to nFiles
         sr = Get sampling frequency
         nChannels = Get number of channels
 
-        # Extract VAD speech duration
-        tg = To TextGrid (speech activity): 0.0, 0.3, 0.1, 70.0, 6000.0, -10.0, -35.0, 0.1, 0.1, "sil", "v"
-        selectObject: tg
-        vadspeechDur = Get total duration of intervals where: 1, "is equal to", "v"
-        appendInfoLine: "dur: ", duration, "; sr: ", sr, "; nChannels: ", nChannels, "; vadspeechDur: ", vadspeechDur
+        if not noVAD
+            # Extract VAD speech duration
+            tg = To TextGrid (speech activity): 0.0, 0.3, 0.1, 70.0, 6000.0, -10.0, -35.0, 0.1, 0.1, "sil", "v"
+            selectObject: tg
+            vadspeechDur = Get total duration of intervals where: 1, "is equal to", "v"
+            appendInfoLine: "dur: ", duration, "; sr: ", sr, "; nChannels: ", nChannels, "; vadspeechDur: ", vadspeechDur
+        else
+            appendInfoLine: "dur: ", duration, "; sr: ", sr, "; nChannels: ", nChannels
+        endif
         appendInfoLine: "Finished"
     endif
 	
@@ -147,7 +157,9 @@ for iFile to nFiles
         Set numeric value: nRows + 1, "tot_duration", duration
         Set numeric value: nRows + 1, "sampling_freq", sr
         Set numeric value: nRows + 1, "n_channels", nChannels
-        Set numeric value: nRows + 1, "VAD_duration", vadspeechDur
+        if not noVAD
+            Set numeric value: nRows + 1, "VAD_duration", vadspeechDur
+        endif
         Set string value: nRows + 1, "quality", quality$
         Set string value: nRows + 1, "comment", comment$
         appendInfoLine: "Finished"
