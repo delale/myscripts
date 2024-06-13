@@ -1,11 +1,18 @@
 ######################################################################################
-# Praat script to rate sequentially view, edit, (and rate) sound files in a directory.                                                                   
-                                                                    
+# Praat script to rate sequentially view, edit, and rate sound files in a directory.
+
+# The script is inspired by databaseExplorer by Volker Dellwo.
+# When rating is enabled, the script will not only prompt the user to rate and comment 
+# on the sound file, but also create a metadata table containing additional information
+# such as the file sampling rate, duration, and number of channels.
+# Additionally, if noVAD is not selected, the script will also extract the duration of
+# voiced speech in the sound file and calculate the ratio of voiced speech to total duration.
+
 # Usage:                                                                       
 # 1. Run the script from Praat                                                 
 # 2. Specify the input directory where the sound files are located.
 # 3. Specify the output directory where the sound files will be saved.
-# 4. Specify if you would like to only edit the files.
+# 4. Specify additional parameters.
 # 5. View & edit the sound in the automatically opened window.
 # 6. (Optional) Rate the quality of the recording.
 # 7. (Optional) Specify a new file name. Click continue to move on to the next file.
