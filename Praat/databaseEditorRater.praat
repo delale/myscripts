@@ -39,7 +39,7 @@ endform
 # Create a table to store the results
 if not editOnly
     if not noVAD
-	    Create Table with column names: "rating", 0, "source_file filename tot_duration sampling_freq n_channels VAD_duration quality comment"
+	    Create Table with column names: "rating", 0, "source_file filename tot_duration sampling_freq n_channels VAD_duration ratio_voice quality comment"
 	    quality = 1
     else
         Create Table with column names: "rating", 0, "source_file filename tot_duration sampling_freq n_channels quality comment"
@@ -139,6 +139,7 @@ for iFile to nFiles
             tg = To TextGrid (speech activity): 0.0, 0.3, 0.1, 70.0, 6000.0, -10.0, -35.0, 0.1, 0.1, "sil", "v"
             selectObject: tg
             vadspeechDur = Get total duration of intervals where: 1, "is equal to", "v"
+            voice_ratio = vadspeechDur / duration
             appendInfoLine: "dur: ", duration, "; sr: ", sr, "; nChannels: ", nChannels, "; vadspeechDur: ", vadspeechDur
         else
             appendInfoLine: "dur: ", duration, "; sr: ", sr, "; nChannels: ", nChannels
@@ -159,6 +160,7 @@ for iFile to nFiles
         Set numeric value: nRows + 1, "n_channels", nChannels
         if not noVAD
             Set numeric value: nRows + 1, "VAD_duration", vadspeechDur
+            Set numeric value: nRows + 1, "ratio_voice", voice_ratio
         endif
         Set string value: nRows + 1, "quality", quality$
         Set string value: nRows + 1, "comment", comment$
