@@ -128,9 +128,11 @@ for iFile to nFiles
 	endif
 
     # Correctly format the new file name
-    has_extension = endsWith (new_file_name$, ".wav")
-    if not has_extension
-        new_file_name$ = new_file_name$ + ".wav"
+    if not rateOnly
+        has_extension = endsWith (new_file_name$, ".wav")
+        if not has_extension
+            new_file_name$ = new_file_name$ + ".wav"
+        endif
     endif
     
     # Extract file information
