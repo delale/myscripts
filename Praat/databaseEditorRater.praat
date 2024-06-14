@@ -20,8 +20,6 @@
 # Alessandro De Luca - 2024                                                    
 #####################################################################################
 
-# TODO: fix bugs with new_file_name
-
 # Get lists of files in the directory
 form databaseExplorerRater...
     comment Specify input directory and (optional) output directory. You can also specify if you would like to only edit the sound files and not rate them or extract metadata.
@@ -48,10 +46,10 @@ endform
 # Create a table to store the results
 if not editOnly
     if not noVAD
-	    Create Table with column names: "rating", 0, "source_file filename tot_duration sampling_freq n_channels VAD_duration ratio_voice quality comment"
+	    Create Table with column names: "rating", 0, "filename tot_duration sampling_freq n_channels VAD_duration ratio_voice quality comment"
 	    quality = 1
     else
-        Create Table with column names: "rating", 0, "source_file filename tot_duration sampling_freq n_channels quality comment"
+        Create Table with column names: "rating", 0, "filename tot_duration sampling_freq n_channels quality comment"
         quality = 1
     endif
 endif
@@ -165,7 +163,11 @@ for iFile to nFiles
         nRows = Get number of rows
         Append row
         Set string value: nRows + 1, "source_file", filename$
-        Set string value: nRows + 1, "filename", new_file_name$
+        if not rateOnly
+            Set string value: nRows + 1, "filename", new_file_name$
+        else
+            Set string value: nRows + 1, "filename", filename$
+        endif
         Set numeric value: nRows + 1, "tot_duration", duration
         Set numeric value: nRows + 1, "sampling_freq", sr
         Set numeric value: nRows + 1, "n_channels", nChannels
