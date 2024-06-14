@@ -202,8 +202,8 @@ for iFile to nFiles
     if hasTextGrid
         plusObject: grid
     endif
-	if not editOnly
-    		plusObject: tg
+	if not noVAD
+    	plusObject: tg
 	endif
     Remove
 
