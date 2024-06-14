@@ -20,6 +20,8 @@
 # Alessandro De Luca - 2024                                                    
 #####################################################################################
 
+# TODO: fix bugs with new_file_name
+
 # Get lists of files in the directory
 form databaseExplorerRater...
     comment Specify input directory and (optional) output directory. You can also specify if you would like to only edit the sound files and not rate them or extract metadata.
