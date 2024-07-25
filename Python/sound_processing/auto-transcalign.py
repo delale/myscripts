@@ -141,17 +141,25 @@ def align_audio(
     return None
 
 
-def _make_textgrid_from_transcription(transcription: dict, duration: float) -> parselmouth.TextGrid:
+def _make_textgrid_from_transcription(transcription: dict, duration: float, include_original_text: bool = False) -> parselmouth.TextGrid:
     """Makes TextGrid from Whisper transcription."""
-    tier_names = ['text', 'segments']
+    if include_original_text:
+        tier_names = ['text', 'segments']
+    else:
+        tier_names = ['segments']
     if 'words' in transcription['segments'][0]:
         tier_names.append('words')
     tg = parselmouth.TextGrid(
         start_time=0.0, end_time=duration, tier_names=tier_names)
 
     # Add boundaries and labels to the TextGrid
-    praat.call(tg, "Set interval text", 1, 1,
-               transcription['text'])  # text tier
+    if include_original_text:
+        praat.call(tg, "Set interval text", 1, 1,
+                   transcription['text'])  # text tier
+    segment_tier_num = 2 if include_original_text else 1
+    if 'words' in transcription['segments'][0]:
+        words_tier_num = 3 if include_original_text else 2
+
     j = 0
     i = 0
     same_boundary_segment = 0
@@ -162,19 +170,20 @@ def _make_textgrid_from_transcription(transcription: dict, duration: float) -> p
         interval_num = i + 1
         if not segment['end'] >= duration and not (segment['end'] == segment['start']):
             same_boundary_segment = 0
-            praat.call(tg, "Insert boundary", 2, segment['end'])
+            praat.call(tg, "Insert boundary", segment_tier_num, segment['end'])
 
         if segment['end'] == segment['start'] and ii > 0:
             interval_num -= 1
             same_boundary_segment += 1
-            praat.call(tg, "Set interval text", 2, interval_num,
+            praat.call(tg, "Set interval text", segment_tier_num, interval_num,
                        " ".join([transcription['segments'][x]['text'] for x in range(ii-same_boundary_segment, ii)]) + segment['text'])
         else:
             if segment['end'] == segment['start'] and ii == 0:
-                praat.call(tg, "Insert boundary", 2, segment['end'] + 0.001)
+                praat.call(tg, "Insert boundary", segment_tier_num,
+                           segment['end'] + 0.001)
 
             # add label
-            praat.call(tg, "Set interval text", 2,
+            praat.call(tg, "Set interval text", segment_tier_num,
                        interval_num, segment['text'])
             i += 1
 
@@ -183,20 +192,21 @@ def _make_textgrid_from_transcription(transcription: dict, duration: float) -> p
                 interval_num = j + 1
                 if not word['end'] >= duration and not (word['end'] == word['start']):
                     same_boundary_segment_word = 0
-                    praat.call(tg, "Insert boundary", 3, word['end'])
+                    praat.call(tg, "Insert boundary",
+                               words_tier_num, word['end'])
 
                 if word['end'] == word['start'] and jj > 0:
                     interval_num -= 1
                     same_boundary_segment_word += 1
-                    praat.call(tg, "Set interval text", 3,
+                    praat.call(tg, "Set interval text", words_tier_num,
                                interval_num,
                                " ".join([segment['words'][x]['word'] for x in range(jj-same_boundary_segment_word, jj)]) + word['word'])
                 else:
                     if word['end'] == word['start'] and jj == 0:
                         praat.call(tg, "Insert boundary",
-                                   3, word['end'] + 0.001)
+                                   words_tier_num, word['end'] + 0.001)
                     # add label
-                    praat.call(tg, "Set interval text", 3,
+                    praat.call(tg, "Set interval text", words_tier_num,
                                interval_num, word['word'])
                     j += 1
 
@@ -205,7 +215,8 @@ def _make_textgrid_from_transcription(transcription: dict, duration: float) -> p
 
 def whisper_transcribe_align(
     path_to_corpus: str, language: str = None, model: str = "large-v2",
-    word_segmentation: bool = False, output_path: str = None, overwrite=False, logger=None
+    word_segmentation: bool = False, output_path: str = None, overwrite=False,
+    include_original_text: bool = False, logger: logging.Logger = None
 ) -> None:
     """Function to transcribe audio and align it using purely Whisper to a TextGrid.
     Alignment is done at the segment or word (if word_segmentation = True) level.
@@ -217,6 +228,7 @@ def whisper_transcribe_align(
         word_segmentation: Perform word-level segmentation (default=False).
         output_path: Path to the output directory. If None, path_to_corpus is used (default=None).
         overwrite: Overwrite transcriptions if they are present (default=False).
+        include_original_text: Include original utterance text in the output (default=False).
         logger: Logger object (default=None).
     """
     if logger is None:
@@ -252,7 +264,8 @@ def whisper_transcribe_align(
 
                 # save transcription
                 dur = len(signal) / 16000  # default sample rate
-                tg = _make_textgrid_from_transcription(transcription, dur)
+                tg = _make_textgrid_from_transcription(
+                    transcription, dur, include_original_text)
                 tg.save(os.path.join(output_path,
                         os.path.splitext(audio)[0]+".TextGrid"))
             else:
@@ -307,7 +320,7 @@ def main():
         {'name': "--retry_beam",
             'help': "[MFA arg] Rerun beam size (default=400).", 'default': 400, 'type': int},
         {'name': "--include_original_text",
-            'help': "[MFA arg] Include original utterance text in the output (default=True).", 'default': True, 'action': argparse.BooleanOptionalAction},
+            'help': "Include original utterance text in the output (default=True).", 'default': True, 'action': argparse.BooleanOptionalAction},
         {'name': "--textgrid_cleanup",
             'help': "[MFA arg] Post-processing of TextGrids that cleans up silences and recombines compound words and clitics (default=True).", 'default': True, 'action': argparse.BooleanOptionalAction},
         {'name': "--num_jobs",
@@ -316,7 +329,7 @@ def main():
 
     whisper_align_arguments = [
         {'name': '--word_segmentation',
-            'help': '[Whisper-Align arg] Perform word-level segmentation (default=False).', 'default': False, 'action': argparse.BooleanOptionalAction},
+            'help': '[Whisper-Align arg] Perform word-level segmentation (default=False).', 'default': False, 'action': argparse.BooleanOptionalAction}
     ]
     # add args to parser
     for arg_info in whisper_arguments:
@@ -377,6 +390,7 @@ def main():
     else:
         whisper_transcribe_align(
             path_to_corpus=path_to_corpus, output_path=mfa_args['output_path'],
+            include_original_text=mfa_args['include_original_text'],
             logger=logger, **whisper_args, **whisper_align_args)
         logger.info("Finished Whisper-Align transcription and alignment.")
 
