@@ -278,70 +278,74 @@ def main():
         "path_to_corpus", help="Path to the corpus containing the audio files."
     )
     parser.add_argument(
-        "--whisper_align", help="Use Whisper for transcription and alignment.", default=False, type=bool
+        "--whisper_align", help="Use Whisper for transcription and alignment. Default is False.",
+        action=argparse.BooleanOptionalAction, default=False
     )   # if True, use Whisper for transcription and alignment
 
     whisper_arguments = [
-        {'name': "language",
+        {'name': "--language",
             'help': "[Whisper arg] Language of the corpus. If None, automatically detected by Whisper (default=None).", 'default': None, 'type': str},
-        {'name': "model",
+        {'name': "--model",
             'help': "[Whisper arg] Name of Whisper model to use (default='large-v2').", 'default': "large-v2", 'type': str},
-        {'name': "overwrite",
-            'help': "[Whisper arg] Overwrite transcriptions if they are present (default=False)", 'default': False, 'type': bool}
+        {'name': "--overwrite",
+            'help': "[Whisper arg] Overwrite transcriptions if they are present (default=False)", 'default': False, 'action': argparse.BooleanOptionalAction}
     ]
 
     mfa_arguments = [
-        {'name': "output_path",
+        {'name': "--output_path",
             'help': "[MFA arg] Path to the output directory. If None, path_to_corpus is used (default=None).", 'default': None, 'type': str},
-        {'name': "speaker_characters",
+        {'name': "--speaker_characters",
             'help': "[MFA arg] Number of characters of file names to use for determining speaker (default=None).", 'default': None, 'type': int},
-        {'name': "dictionary",
-            'help': "[MFA arg] Name or path of the pronounciaton dictionary (default=english_us_mfa).", 'default': "english_us_mfa", 'type': str},
-        {'name': "acoustic_model",
+        {'name': "--dictionary",
+            'help': "[MFA arg] Name or path of the pronounciation dictionary (default=english_us_mfa).", 'default': "english_us_mfa", 'type': str},
+        {'name': "--acoustic_model",
             'help': "[MFA arg] Name or path of the pretrained acoustic model (default=english_mfa).", 'default': "english_mfa", 'type': str},
-        {'name': "clean",
-            'help': "[MFA arg] Remove files from previous runs (default=False).", 'default': False, 'type': bool},
-        {'name': "beam",
+        {'name': "--clean",
+            'help': "[MFA arg] Remove files from previous runs (default=False).", 'default': False, 'action': argparse.BooleanOptionalAction},
+        {'name': "--beam",
             'help': "[MFA arg] Beam size (default=100).", 'default': 100, 'type': int},
-        {'name': "retry_beam",
+        {'name': "--retry_beam",
             'help': "[MFA arg] Rerun beam size (default=400).", 'default': 400, 'type': int},
-        {'name': "include_original_text",
-            'help': "[MFA arg] Include original utterance text in the output (default=True).", 'default': True, 'type': bool},
-        {'name': "textgrid_cleanup",
-            'help': "[MFA arg] Post-processing of TextGrids that cleans up silences and recombines compound words and clitics (default=True).", 'default': True, 'type': bool},
-        {'name': "num_jobs",
+        {'name': "--include_original_text",
+            'help': "[MFA arg] Include original utterance text in the output (default=True).", 'default': True, 'action': argparse.BooleanOptionalAction},
+        {'name': "--textgrid_cleanup",
+            'help': "[MFA arg] Post-processing of TextGrids that cleans up silences and recombines compound words and clitics (default=True).", 'default': True, 'action': argparse.BooleanOptionalAction},
+        {'name': "--num_jobs",
             'help': "[MFA arg] Set the number of processes to use (default=3).", 'default': 3, 'type': int}
     ]
 
     whisper_align_arguments = [
-        {'name': 'word_segmentation',
-            'help': '[Whisper-Align arg] Perform word-level segmentation (default=False).', 'default': False, 'type': bool},
+        {'name': '--word_segmentation',
+            'help': '[Whisper-Align arg] Perform word-level segmentation (default=False).', 'default': False, 'action': argparse.BooleanOptionalAction},
     ]
-
+    # add args to parser
     for arg_info in whisper_arguments:
-        parser.add_argument(
-            "--"+arg_info['name'], nargs="*", help=arg_info['help'], default=arg_info['default'], type=arg_info['type'])
+        kwargs = arg_info.copy()
+        name = kwargs.pop('name')
+        parser.add_argument(name, **kwargs)
     for arg_info in mfa_arguments:
-        parser.add_argument(
-            "--"+arg_info['name'], nargs="*", help=arg_info['help'], default=arg_info['default'], type=arg_info['type'])
+        kwargs = arg_info.copy()
+        name = kwargs.pop('name')
+        parser.add_argument(name, **kwargs)
     for arg_info in whisper_align_arguments:
-        parser.add_argument(
-            "--"+arg_info['name'], nargs="*", help=arg_info['help'], default=arg_info['default'], type=arg_info['type'])
+        kwargs = arg_info.copy()
+        name = kwargs.pop('name')
+        parser.add_argument(name, **kwargs)
 
     args = parser.parse_args()
     path_to_corpus = args.path_to_corpus
 
     # extract whisper args
     whisper_args = {arg: getattr(args, arg)[0] if isinstance(getattr(args, arg), list) else getattr(args, arg) for arg in [
-        arg_info['name'] for arg_info in whisper_arguments]}
+        arg_info['name'].replace('--', '') for arg_info in whisper_arguments]}
 
     # extract mfa args
     mfa_args = {arg: getattr(args, arg)[0] if isinstance(getattr(args, arg), list) else getattr(args, arg) for arg in [
-        arg_info['name'] for arg_info in mfa_arguments]}
+        arg_info['name'].replace('--', '') for arg_info in mfa_arguments]}
 
     # extract whisper-align args
     whisper_align_args = {arg: getattr(args, arg)[0] if isinstance(getattr(args, arg), list) else getattr(args, arg) for arg in [
-        arg_info['name'] for arg_info in whisper_align_arguments]}
+        arg_info['name'].replace('--', '') for arg_info in whisper_align_arguments]}
 
     # Setup logging
     if mfa_args['output_path'] is None:
