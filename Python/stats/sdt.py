@@ -143,7 +143,7 @@ def extract_sdt(ypred: np.ndarray, ytrue: np.ndarray, equal_var: bool = False, d
 
     if np.any(hits == 0) or np.any(fas == 0) or np.any(hits == np.sum(ytrue == 1)) or np.any(fas == np.sum(ytrue == 0)):
         warnings.warn(
-            "Hit rate or False Alarm rate is 0 or 1. Adjusting for SDT calculations using the loglinear approach (Hautus, 1995).")
+            "Hit rate or False Alarm rate is 0 or 1. Adjusting for SDT calculations using the loglinear approach (Hautus, 1995).")  # TODO: Add function to find respondents that have this issue and flag them + plots for each listener
         signal_proportion = signal_trials / (signal_trials + noise_trials)
         noise_proportion = noise_trials / (signal_trials + noise_trials)
         hits = hits + signal_proportion
