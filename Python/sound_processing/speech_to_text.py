@@ -19,7 +19,7 @@ def record2():
             audio = asr_model.listen(mic_source)
 
             # use google's sr
-            transciption = asr_model.recognize_google(audio, language="de")
+            transciption = asr_model.recognize_google(audio, language="en")
 
             print(transciption)
 
