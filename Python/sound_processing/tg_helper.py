@@ -58,7 +58,7 @@ class TextGridHanlder:
         text_col: str = "text",
     ):
         if filename.endswith(".TextGrid"):
-            self.textgrid = parselmouth.TextGrid(filename)
+            self.textgrid = parselmouth.read(filename)
         else:
             self.textgrid = self.table_to_textgrid(
                 table=self._table_handler(filename),
