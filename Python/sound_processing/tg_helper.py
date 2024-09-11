@@ -49,6 +49,7 @@ class TextGridHanlder:
 
     """
 
+    # TODO: add management of point tiers too
     def __init__(
         self,
         filename: str,
@@ -124,26 +125,27 @@ class TextGridHanlder:
         # init vars
         start = table[t0_col].min()
         end = table[t1_col].max()
-        tiers = {k: 0 for k in set(table[tier_col])}
+        self.tiers = {k: 0 for k in set(table[tier_col])}
 
         # Create a new TextGrid
         tg = parselmouth.TextGrid(
-            start_time=start, end_time=end, tier_names=list(tiers.keys())
+            start_time=start, end_time=end, tier_names=list(self.tiers.keys())
         )
 
         # loop through the table and add the intervals
         for _, row in table.iterrows():
             ntier = (
-                list(tiers.keys()).index(row[tier_col].value()) + 1
+                list(self.tiers.keys()).index(row[tier_col].value()) + 1
             )  # get the tier number
-            nsegment = tiers[row[tier_col]] = (
-                tiers[row[tier_col]] + 1
+            nsegment = self.tiers[row[tier_col]] = (
+                self.tiers[row[tier_col]] + 1
             )  # increment the counter for intervals
             t0 = row[t0_col]
             t1 = row[t1_col]
             text = row[text_col]
 
             # insert boundaries
+            # FIXME: error if t0 and t1 are the same
             call(tg, "Insert boundary", ntier, t0)
             call(tg, "Insert boundary", ntier, t1)
 
@@ -152,12 +154,18 @@ class TextGridHanlder:
 
         return tg
 
-    def add_tier(self, tier_name: str):
-        """Adds a tier to the TextGrid.
+    def add_tier(self, tier_name: str, tier_table: pd.DataFrame):
+        """Adds a tier to the TextGrid. The tier will be added at the end of the TextGrid.
 
         Parameters:
         -----------
-        tier_name : str
+        tier_name: str
+            The name of the tier to add.
+        tier_table : pd.DataFrame
             The name of the tier to add.
         """
-        pass
+        # get the tier number
+        ntier = len(self.tiers) + 1
+
+        # add the tier to the TextGrid
+        call(self.textgrid, "Insert interval tier", ntier, tier_name)
