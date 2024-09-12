@@ -199,6 +199,7 @@ class TextGridHandler:
 
         return tg
 
+    # Kind of deprecated by using Praat's merge function
     def add_tier(
         self,
         tier_name: str,
@@ -293,36 +294,18 @@ def combine_textgrids(
         Default is 'text'.
     """
     # Load the textgrids
-    ref_tg = TextGridHandler(
-        filename=textgrids.pop(0),
-        t0_col=t0_col,
-        t1_col=t1_col,
-        tier_col=tier_col,
-        text_col=text_col,
-    )  # reference textgrid
-    to_add_tg = [
+    tgs = [
         TextGridHandler(
             filename=f,
             t0_col=t0_col,
             t1_col=t1_col,
             tier_col=tier_col,
             text_col=text_col,
-        )
+        ).textgrid
         for f in textgrids
     ]
-
-    # Add the tiers from the other textgrids
-    for tg in to_add_tg:
-        for tier_name in tg.tiers:
-            tier_table = tg.table[
-                tg.table[tier_col] == tier_name
-            ].reset_index()  # extract only tier rows
-            ref_tg.add_tier(
-                tier_name, tier_table, tg.t0_col, tg.t1_col, tg.text_col
-            )  # add tier to ref
-
-    # Save the combined textgrid
-    ref_tg.save(output_filename)
+    merged = call(tgs, "Merge")  # merge the TextGrids
+    merged.save(output_filename)  # save the merged TextGrid
 
 
 # convert from table
