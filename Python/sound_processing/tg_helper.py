@@ -29,7 +29,7 @@ class TextGridHanlder:
         Default is 'tmax'. Only needed if filename is a table and not a .TextGrid file.
     tier_col: str, optional
         The name of the column containing the tier names.
-        Default is 'tier_col'. Only needed if filename is a table and not a .TextGrid file.
+        Default is 'tier'. Only needed if filename is a table and not a .TextGrid file.
     text_col: str, optional
         The name of the column containing the text.
         Default is 'text'. Only needed if filename is a table and not a .TextGrid file.
@@ -43,10 +43,16 @@ class TextGridHanlder:
     --------
     _table_handler(filename: str) -> pd.DataFrame
         Handles the table file and returns a pandas.DataFrame.
+    _insert_segment(tg, ntier, nsegment, t0, t1, text) -> parselmouth.TextGrid
+        Inserts a segment in the TextGrid.
     table_to_textgrid(table: pd.DataFrame, t0_col: str = 'tmin', t1_col: str = 'tmax',
-                       tier_col: str = 'tier_col', text_col: str = 'text') -> parselmouth.TextGrid
+                       tier_col: str = 'tier', text_col: str = 'text') -> parselmouth.TextGrid
         Converts a table to a TextGrid object.
-
+    add_tier(tier_name: str, tier_table: pd.DataFrame, t0_col: str = 'tmin', t1_col: str = 'tmax',
+             text_col: str = 'text') -> None
+        Adds a tier to the TextGrid.
+    save(filename: str) -> None
+        Saves the TextGrid object to a file.
     """
 
     def __init__(
@@ -54,14 +60,16 @@ class TextGridHanlder:
         filename: str,
         t0_col: str = "tmin",
         t1_col: str = "tmax",
-        tier_col: str = "tier_col",
+        tier_col: str = "tier",
         text_col: str = "text",
     ):
         if filename.endswith(".TextGrid"):
             self.textgrid = parselmouth.read(filename)
+            self.table = call(self.textgrid, "Down to table", 6, 1, 1)
         else:
+            self._table_handler(filename)
             self.textgrid = self.table_to_textgrid(
-                table=self._table_handler(filename),
+                table=self.table,
                 t0_col=t0_col,
                 t1_col=t1_col,
                 tier_col=tier_col,
@@ -86,7 +94,7 @@ class TextGridHanlder:
                 )
 
         # read the table
-        return pd.read_csv(filename, sep=sep)
+        self.table = pd.read_csv(filename, sep=sep)
 
     def _insert_segment(self, tg, ntier, nsegment, t0, t1, text):
         is_interval = t0 != t1
@@ -111,7 +119,7 @@ class TextGridHanlder:
         table: pd.DataFrame,
         t0_col: str = "tmin",
         t1_col: str = "tmax",
-        tier_col: str = "tier_col",
+        tier_col: str = "tier",
         text_col: str = "text",
     ):
         """Converts a table to a TextGrid object.
@@ -129,7 +137,7 @@ class TextGridHanlder:
             Default is 'tmax'.
         tier_col : str, optional
             The name of the column containing the tier names.
-            Default is 'tier_col'.
+            Default is 'tier'.
         text_col : str, optional
             The name of the column containing the text.
             Default is 'text'.
@@ -218,3 +226,159 @@ class TextGridHanlder:
             The filename to save the TextGrid to.
         """
         self.textgrid.save(filename)
+
+
+# functions ####################################################################
+def combine_textgrids(
+    textgrids: list,
+    output_filename: str,
+    t0_col: str = "tmin",
+    t1_col: str = "tmax",
+    tier_col: str = "tier",
+    text_col: str = "text",
+) -> None:
+    """Combine multiple textgrids into a single one.
+
+    Parameters:
+    -----------
+    textgrids : list
+        A list of TextGrid filenames to combine.
+    output_filename : str
+        The filename of the output TextGrid.
+    t0_col : str, optional
+        The name of the column containing the start times of the intervals.
+        Default is 'tmin'.
+    t1_col : str, optional
+        The name of the column containing the end times of the intervals.
+        Default is 'tmax'.
+    tier_col : str, optional
+        The name of the column containing the tier names.
+        Default is 'tier'.
+    text_col : str, optional
+        The name of the column containing the text.
+        Default is 'text'.
+    """
+    # Load the textgrids
+    ref_tg = TextGridHanlder(
+        filename=textgrids.pop(0),
+        t0_col=t0_col,
+        t1_col=t1_col,
+        tier_col=tier_col,
+        text_col=text_col,
+    )  # reference textgrid
+    to_add_tg = [
+        TextGridHanlder(
+            filename=f,
+            t0_col=t0_col,
+            t1_col=t1_col,
+            tier_col=tier_col,
+            text_col=text_col,
+        )
+        for f in textgrids
+    ]
+
+    # Add the tiers from the other textgrids
+    for tg in to_add_tg:
+        for tier_name in tg.tiers.keys():
+            tier_table = tg.table[
+                tg.table[tier_col] == tier_name
+            ]  # extract only tier rows
+            ref_tg.add_tier(
+                tier_name, tier_table, t0_col, t1_col, text_col
+            )  # add tier to ref
+
+    # Save the combined textgrid
+    ref_tg.save(output_filename)
+
+
+# convert from table
+def convert_to_textgrid(
+    filename: str,
+    output_filename: str,
+    t0_col: str = "tmin",
+    t1_col: str = "tmax",
+    tier_col: str = "tier",
+    text_col: str = "text",
+) -> None:
+    """Convert a table to a TextGrid.
+
+    Parameters:
+    -----------
+    filename: str
+        The filename of the table to convert.
+    output_filename: str
+        The filename of the output TextGrid.
+    t0_col: str, optional
+        The name of the column containing the start times of the intervals.
+        Default is 'tmin'.
+    t1_col: str, optional
+        The name of the column containing the end times of the intervals.
+        Default is 'tmax'.
+    tier_col: str, optional
+        The name of the column containing the tier names.
+        Default is 'tier'.
+    text_col: str, optional
+        The name of the column containing the text.
+        Default is 'text'.
+    """
+    tgHelper = TextGridHanlder(filename, t0_col, t1_col, tier_col, text_col)
+    tgHelper.save(output_filename)
+
+
+# main #########################################################################
+def main():
+    # parse the arguments
+    parser = argparse.ArgumentParser(
+        description="A script to help with Praat TextGrid management.\nMain functions are to convert a table to a TextGrid and to combine multiple TextGrids into a single one."
+    )
+    parser.add_argument(
+        "function",
+        type=str,
+        choices=["convert", "combine"],
+        help="The function to run. 'convert' to convert a table to a TextGrid and 'combine' to combine multiple TextGrids.",
+    )
+    parsed_args = parser.parse_args()
+
+    # user inputs
+    filename = input("Enter the filename (full path) of the table or the TextGrid: ")
+    i = 0
+    while output_filename == "" or i == 0:
+        if i > 0:
+            print("Please provide a valid filename.")
+        output_filename = input("Enter the output filename (full path): ")
+        i += 1
+        if i > 5:
+            raise ValueError("Too many attempts. Exiting.")
+    t0_col = (
+        input("Enter the column name for the start times [default='tmin']: ") or "tmin"
+    )
+    t1_col = (
+        input("Enter the column name for the end times [default='tmax']: ") or "tmax"
+    )
+    tier_col = (
+        input("Enter the column name for the tier names [default='tier']: ") or "tier"
+    )
+    text_col = input("Enter the column name for the text [default='text']: ") or "text"
+
+    if parsed_args.function == "convert":
+        convert_to_textgrid(
+            filename, output_filename, t0_col, t1_col, tier_col, text_col
+        )
+    else:  # combine
+        textgrids = [filename]
+        while True:
+            tg = input(
+                "Enter the filename (full path) of the TextGrid(s) to combine. Enter 'q' to finish: "
+            )
+            textgrids.append(tg)
+            if tg == "q":
+                break
+        combine_textgrids(
+            textgrids, output_filename, t0_col, t1_col, tier_col, text_col
+        )
+
+    print("Done.\nYour new TextGrid is saved as:", output_filename)
+
+
+if __name__ == "__main__":
+    main()
