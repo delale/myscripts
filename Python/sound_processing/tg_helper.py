@@ -49,7 +49,6 @@ class TextGridHanlder:
 
     """
 
-    # TODO: add management of point tiers too
     def __init__(
         self,
         filename: str,
@@ -88,6 +87,24 @@ class TextGridHanlder:
 
         # read the table
         return pd.read_csv(filename, sep=sep)
+
+    def _insert_segment(self, tg, ntier, nsegment, t0, t1, text):
+        is_interval = t0 != t1
+        text = "" if pd.isna(text) else text
+
+        if is_interval:
+            # interval tier
+            call(tg, "Insert boundary", ntier, t0)
+            call(tg, "Insert boundary", ntier, t1)
+            # insert text
+            call(tg, "Set interval text", ntier, nsegment, text)
+        else:
+            # point tier
+            call(tg, "Insert point", ntier, t0)
+            # insert text
+            call(tg, "Set point text", ntier, nsegment, text)
+
+        return tg
 
     def table_to_textgrid(
         self,
@@ -144,17 +161,19 @@ class TextGridHanlder:
             t1 = row[t1_col]
             text = row[text_col]
 
-            # insert boundaries
-            # FIXME: error if t0 and t1 are the same
-            call(tg, "Insert boundary", ntier, t0)
-            call(tg, "Insert boundary", ntier, t1)
-
-            # insert text
-            call(tg, "Set interval text", ntier, nsegment, text)
+            # insert the segment
+            tg = self._insert_segment(tg, ntier, nsegment, t0, t1, text)
 
         return tg
 
-    def add_tier(self, tier_name: str, tier_table: pd.DataFrame):
+    def add_tier(
+        self,
+        tier_name: str,
+        tier_table: pd.DataFrame,
+        t0_col: str = "tmin",
+        t1_col: str = "tmax",
+        text_col: str = "text",
+    ):
         """Adds a tier to the TextGrid. The tier will be added at the end of the TextGrid.
 
         Parameters:
@@ -163,9 +182,39 @@ class TextGridHanlder:
             The name of the tier to add.
         tier_table : pd.DataFrame
             The name of the tier to add.
+        t0_col : str, optional
+            The name of the column containing the start times of the intervals.
+            Default is 'tmin'.
+        t1_col : str, optional
+            The name of the column containing the end times of the intervals.
+            Default is 'tmax'.
+        text_col : str, optional
+            The name of the column containing the text.
+            Default is 'text'.
         """
         # get the tier number
         ntier = len(self.tiers) + 1
 
         # add the tier to the TextGrid
         call(self.textgrid, "Insert interval tier", ntier, tier_name)
+
+        # loop through the table and add the intervals
+        for nsegment, row in tier_table.iterrows():
+            t0 = row[t0_col]
+            t1 = row[t1_col]
+            text = row[text_col]
+
+            # insert the segment
+            self.textgrid = self._insert_segment(
+                self.textgrid, ntier, nsegment, t0, t1, text
+            )
+
+    def save(self, filename: str):
+        """Saves the TextGrid object to a file.
+
+        Parameters:
+        -----------
+        filename: str
+            The filename to save the TextGrid to.
+        """
+        self.textgrid.save(filename)
