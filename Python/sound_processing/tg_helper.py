@@ -48,6 +48,7 @@ $ python tg_helper.py combine
 > Enter the filename (full path) of the TextGrid(s) to combine. Enter 'q' to finish: q
 """
 
+# TODO: try merge function from Praat and add an automatic scraping function to merge all TextGrids in a folder or in separate folders to separate TextGrids.
 import argparse
 import os
 import pandas as pd
