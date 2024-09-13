@@ -46,6 +46,14 @@ $ python tg_helper.py combine
 > Enter the filename (full path) of the TextGrid(s) to combine. Enter 'q' to finish: /path/to/tg1.TextGrid
 > Enter the filename (full path) of the TextGrid(s) to combine. Enter 'q' to finish: /path/to/tg2.TextGrid
 > Enter the filename (full path) of the TextGrid(s) to combine. Enter 'q' to finish: q
+
+search_and_combine:
+$ python tg_helper.py search_and_combine
+> Enter the directory to search in: /path/to/folders/
+> Enter the column name for the start times [default='tmin']: tmin
+> Enter the column name for the end times [default='tmax']: tmax
+> Enter the column name for the tier names [default='tier']: tier
+> Enter the column name for the text [default='text']: text
 """
 
 import argparse
@@ -448,9 +456,7 @@ def main():
             filename, output_filename, t0_col, t1_col, tier_col, text_col
         )
     elif parsed_args.function == "search_and_combine":
-        search_and_combine(
-            directory, t0_col, t1_col, tier_col, text_col
-        )
+        search_and_combine(directory, t0_col, t1_col, tier_col, text_col)
     else:  # combine
         textgrids = [filename]
         while True:
