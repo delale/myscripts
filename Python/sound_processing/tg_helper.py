@@ -9,7 +9,7 @@ Date: 10-09-2024
 Usage:
 ------
 1. Run the script.
-2. Choose the function to run: 'convert' or 'combine'.
+2. Choose the function to run: 'convert', 'combine' or 'search_and_combine'.
 3. Enter the filename of the table or the TextGrid.
 4. Enter the output filename.
 5. Enter the column names for the start times, end times, tier names, and text.
@@ -48,8 +48,8 @@ $ python tg_helper.py combine
 > Enter the filename (full path) of the TextGrid(s) to combine. Enter 'q' to finish: q
 """
 
-# TODO: try merge function from Praat and add an automatic scraping function to merge all TextGrids in a folder or in separate folders to separate TextGrids.
 import argparse
+import glob
 import os
 import pandas as pd
 import parselmouth
@@ -308,6 +308,55 @@ def combine_textgrids(
     merged.save(output_filename)  # save the merged TextGrid
 
 
+def search_and_combine(
+    directory: str,
+    t0_col: str = "tmin",
+    t1_col: str = "tmax",
+    tier_col: str = "tier",
+    text_col: str = "text",
+):
+    """Search in all the subdirectories of a directory for TextGrids and combine them.
+    The TextGrids will be combined in a single TextGrid for each subdirectory and
+    saved in the same subdirectory with the name 'combined.TextGrid'.
+
+    Parameters:
+    -----------
+    directory: str
+        The directory to search in.
+    t0_col: str, optional
+        The name of the column containing the start times of the intervals.
+        Default is 'tmin'.
+    t1_col: str, optional
+        The name of the column containing the end times of the intervals.
+        Default is 'tmax'.
+    tier_col: str, optional
+        The name of the column containing the tier names.
+        Default is 'tier'.
+    text_col: str, optional
+        The name of the column containing the text.
+        Default is 'text'.
+    """
+    extensions = [".TextGrid", ".Table", ".csv", ".tsv", ".txt"]
+    # Load all the TextGrids
+    for subdir in glob.iglob(directory + "/*/"):
+        textgrids = [
+            f for f in os.listdir(subdir) if os.path.splitext(f)[1] in extensions
+        ]
+        if len(textgrids) == 0:
+            print(f"No TextGrids found in {subdir}. Skipping.")
+        elif len(textgrids) == 1:
+            print(f"Only one TextGrid found in {subdir}. Skipping.")
+        else:
+            combine_textgrids(
+                textgrids,
+                os.path.join(subdir, "combined.TextGrid"),
+                t0_col,
+                t1_col,
+                tier_col,
+                text_col,
+            )
+
+
 # convert from table
 def convert_to_textgrid(
     filename: str,
@@ -351,30 +400,36 @@ def main():
     parser.add_argument(
         "function",
         type=str,
-        choices=["convert", "combine"],
-        help="The function to run. 'convert' to convert a table to a TextGrid and 'combine' to combine multiple TextGrids.",
+        choices=["convert", "combine", "search_and_combine"],
+        help="The function to run. 'convert' to convert a table to a TextGrid, 'combine' to combine multiple TextGrids, 'search_and_combine' to search in all the subdirectories of a directory for TextGrids and combine them.",
     )
     parsed_args = parser.parse_args()
 
-    # user inputs
-    filename = str(
-        input("Enter the filename (full path) of the table or the TextGrid: ")
-    )
-    iMax = 5  # max tries
-    while iMax > 0:
-        output_filename = str(input("Enter the output filename (full path): "))
-        if output_filename == "":
-            print("Output filename cannot be empty. Try again.")
-            iMax -= 1
-            continue
-        elif os.path.exists(output_filename):
-            if input("File already exists. Overwrite? (y/n) ") == "y":
+    if parsed_args.function == "search_and_combine":
+        # user inputs
+        directory = str(input("Enter the directory to search in: "))
+    else:
+        # user inputs
+        filename = str(
+            input("Enter the filename (full path) of the table or the TextGrid: ")
+        )
+        iMax = 5  # max tries
+        while iMax > 0:
+            output_filename = str(input("Enter the output filename (full path): "))
+            if output_filename == "":
+                print("Output filename cannot be empty. Try again.")
+                iMax -= 1
+                continue
+            elif os.path.exists(output_filename):
+                if input("File already exists. Overwrite? (y/n) ") == "y":
+                    break
+            else:
                 break
-        else:
-            break
-    if iMax == 0:
-        print("Too many tries. Exiting.")
-        return
+        if iMax == 0:
+            print("Too many tries. Exiting.")
+            return
+
+    # user inputs
     t0_col = str(
         input("Enter the column name for the start times [default='tmin']: ") or "tmin"
     )
@@ -391,6 +446,10 @@ def main():
     if parsed_args.function == "convert":
         convert_to_textgrid(
             filename, output_filename, t0_col, t1_col, tier_col, text_col
+        )
+    elif parsed_args.function == "search_and_combine":
+        search_and_combine(
+            directory, t0_col, t1_col, tier_col, text_col
         )
     else:  # combine
         textgrids = [filename]
