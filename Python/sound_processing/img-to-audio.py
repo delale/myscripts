@@ -6,10 +6,11 @@ import argparse
 import os
 from PIL import Image
 import numpy as np
-import sounddevice as sd
 import matplotlib.pyplot as plt
-from scipy.signal import spectrogram
 import multiprocessing as mp
+from scipy.signal import spectrogram
+import sounddevice as sd
+import soundfile as sf
 
 
 def preprocess_img(
@@ -21,7 +22,7 @@ def preprocess_img(
 
 def prep_wave(
     duration: float,
-    sample_rate: float,
+    sample_rate: int,
 ):
     t = np.linspace(0, duration, int(duration * sample_rate), False)
     audio_wave = np.zeros_like(t)
@@ -29,17 +30,26 @@ def prep_wave(
     return t, audio_wave
 
 
-def _process_pixel(
+def _process_chunk(
     image: Image.Image,
-    x: int,
-    y: int,
     t: np.ndarray,
     fmin: float,
     fmax: float,
+    ystart: int,
+    yend: int,
 ):
-    pixel_value = image.getpixel((x, y))
-    frequency = fmin + fmax - fmin * (pixel_value / 255)  # map pixel to Hz
-    return np.sin(2 * np.pi * frequency * t)
+    width = image.size[0]
+    chunk_wave = np.zeros_like(t)
+
+    for y in range(ystart, yend):
+        for x in range(width):
+            pixel_value = image.getpixel((x, y))
+        frequency = fmin + fmax - fmin * (pixel_value / 255)  # map pixel to Hz
+        chunk_wave += (1 / (width * (yend - ystart))) * np.sin(
+            2 * np.pi * frequency * t
+        )
+
+    return chunk_wave
 
 
 def image_to_audio(
@@ -50,28 +60,43 @@ def image_to_audio(
 ):
     width, height = image.size
     fmin, fmax = freq_range
-    with mp.Pool() as pool:
-        results = pool.starmap(
-            _process_pixel,
-            [(image, x, y, t, fmin, fmax) for x in range(width) for y in range(height)],
-        )
+    num_chunks = mp.cpu_count() - 1
+    chunk_size = height // num_chunks
 
-    for result in results:
-        audio_wave += results
+    with mp.Pool() as pool:
+        tasks = [
+            (
+                image,
+                t,
+                fmin,
+                fmax,
+                i * chunk_size,
+                (i + 1) * chunk_size if i < num_chunks - 1 else height,
+            )
+            for i in range(num_chunks)
+        ]
+        results = pool.starmap(_process_chunk, tasks)
+
+    for chunk_wave in results:
+        audio_wave += chunk_wave
 
     # normalise
-    audio_wave /= np.max(np.abs(audio_wave))
+    try:
+        audio_wave /= np.max(np.abs(audio_wave))
+    except ZeroDivisionError as e:
+        print(e)
 
     return audio_wave
 
 
 def plot_and_play(
     audio_wave: np.ndarray,
-    sample_rate: float,
+    sample_rate: int,
     duration: float,
 ):
     # play audio
     sd.play(audio_wave, blocking=True, samplerate=sample_rate)
+    sd.wait()
 
     # plot waveform and spectrogram
     time = np.linspace(0, duration, len(audio_wave), False)
@@ -99,7 +124,7 @@ def main(
     img_path: str,
     save_to: str = None,
     duration: float = 5.0,
-    sample_rate: float = 44100.0,
+    sample_rate: int = 44100,
     freq_range: tuple[float] = (20.0, 12000.0),
     view_and_play: bool = False,
 ):
@@ -110,13 +135,17 @@ def main(
     image_wave = image_to_audio(image, audio_wave, t, freq_range)
 
     if save_to is None:
-        save_to = os.path.splitext(img_path) + ".wav"
+        save_to = os.path.splitext(img_path)[0] + ".wav"
 
-    sd.write(save_to, image_wave, sample_rate)
+    sf.write(save_to, image_wave, sample_rate)
     print(f"Audio saved to {save_to}")
 
     if view_and_play:
-        plot_and_play()
+        plot_and_play(
+            audio_wave=audio_wave,
+            duration=duration,
+            sample_rate=sample_rate,
+        )
 
 
 if __name__ == "__main__":
@@ -143,8 +172,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--sample_rate",
         help="Audio sample_rate. Default = 44100.0.",
-        type=float,
-        default=44100.0,
+        type=int,
+        default=44100,
     )
     parser.add_argument(
         "--frequency_range",
