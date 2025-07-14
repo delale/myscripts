@@ -54,19 +54,17 @@ def transcribe_audio(
     logger.info(f"Whisper on {path_to_corpus} corpus.")
     if language is None:
         logger.info(
-            f"Whisper CMD: whisper {
-                os.path.join(path_to_corpus, '<audio_file>')
-            } --model {model} --output_format txt --verbose False --output_dir {
-                path_to_corpus
-            } --fp16 False"
+            f"Whisper CMD: whisper "
+            + f"{os.path.join(path_to_corpus, '<audio_file>')} "
+            + f"--model {model} --output_format txt --verbose False "
+            + f"--output_dir {path_to_corpus} --fp16 False"
         )
     else:
         logger.info(
-            f"Whisper CMD: whisper {
-                os.path.join(path_to_corpus, '<audio_file>')
-            } --model {model} --output_format txt --verbose False --output_dir {
-                path_to_corpus
-            } --fp16 False --language {language}"
+            f"Whisper CMD: whisper "
+            + f"{os.path.join(path_to_corpus, '<audio_file>')} "
+            + f"--model {model} --output_format txt --verbose False "
+            + f"--output_dir {path_to_corpus} --fp16 False --language {language}"
         )
 
     naudio = 0
@@ -78,11 +76,11 @@ def transcribe_audio(
             # if overwrite is True or if the transcription does not exist
             if overwrite or os.path.splitext(audio)[0] + ".txt" not in audio_files:
                 logger.info(f"Transcribing {audio}")
-                whisper_cmd = f"whisper {os.path.join(path_to_corpus, audio)} --model {
-                    model
-                } --output_format txt --verbose False --output_dir {
-                    path_to_corpus
-                } --fp16 False"
+                whisper_cmd = (
+                    f"whisper {os.path.join(path_to_corpus, audio)} "
+                    + f"--model {model} --output_format txt --verbose False "
+                    + f"--output_dir {path_to_corpus} --fp16 False"
+                )
                 if language is not None:
                     whisper_cmd += f" --language {language}"
                 try:
@@ -139,15 +137,18 @@ def align_audio(
 
     # Create mfa command
     if speaker_characters:
-        mfa_cmd = f"mfa align --speaker_characters {speaker_characters} {
-            path_to_corpus
-        } {dictionary} {acoustic_model} {output_path} --beam {beam} --retry_beam {
-            retry_beam
-        } --num_jobs {num_jobs}"
+        mfa_cmd = (
+            f"mfa align --speaker_characters "
+            + f"{speaker_characters} {path_to_corpus} "
+            + f"{dictionary} {acoustic_model} {output_path} "
+            + f"--beam {beam} --retry_beam {retry_beam} --num_jobs {num_jobs}"
+        )
     else:
-        mfa_cmd = f"mfa align {path_to_corpus} {dictionary} {acoustic_model} {
-            output_path
-        } --beam {beam} --retry_beam {retry_beam} --num_jobs {num_jobs}"
+        mfa_cmd = (
+            f"mfa align {path_to_corpus} "
+            + f"{dictionary} {acoustic_model} {output_path} "
+            + f"--beam {beam} --retry_beam {retry_beam} --num_jobs {num_jobs}"
+        )
 
     if clean:
         mfa_cmd += " --clean"
