@@ -1,0 +1,11 @@
+name: aligner
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.11
+  - montreal-forced-aligner
+  - pip
+  - pip:
+    - praat-parselmouth
+    - openai-whisper
