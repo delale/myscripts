@@ -282,7 +282,7 @@ scale_discrete_fill_bright <- function(...) {
 
 # Muted
 discrete_palette_muted <- c(
-    "#c8c8c8", "#f0c571", "#59a89c", "#0b81a2", "#e25759", "#9d2c00", "#7E4794", "#36b700"
+    "#c8c8c8",  "#0b81a2", "#36b700", "#9d2c00", "#59a89c",  "#f0c571",   "#7E4794", "#e25759" 
 )
 scale_discrete_colour_muted <- function(...) {
     ggplot2::scale_colour_manual(
