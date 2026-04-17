@@ -57,14 +57,14 @@ theme_adl <- function() {
                     family = "mono",
                     face = "bold",
                     color = "black",
-                    margin = margin(r = 4, b = 2, t = 2, l = 4),
+                    margin = margin(r = 4, b = 3, t = 3, l = 4),
                     hjust = 0.5
                 ),
                 legend.text = element_text(
                     size = 10,
                     family = "mono",
                     color = "black",
-                    margin = margin(r = 4, b = 2, t = 2, l = 4),
+                    margin = margin(r = 4, b = 3, t = 3, l = 4),
                     hjust = 0.5
                 ),
                 legend.background = element_rect(
