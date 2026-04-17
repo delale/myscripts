@@ -16,7 +16,7 @@ theme_adl <- function() {
                 ),
                 plot.title.position = "plot",
                 axis.title.x = element_text(
-                    size = 12,
+                    size = 14,
                     family = "mono",
                     face = "bold",
                     color = "black",
@@ -24,7 +24,7 @@ theme_adl <- function() {
                     margin = margin(t = 6)
                 ),
                 axis.title.y = element_text(
-                    size = 12,
+                    size = 14,
                     family = "mono",
                     face = "bold",
                     color = "black",
@@ -53,18 +53,20 @@ theme_adl <- function() {
                 panel.grid.minor = element_line(colour = "lightgrey", linewidth = 0.3),
                 # Legend
                 legend.title = element_text(
-                    size = 12,
+                    size = 14,
                     family = "mono",
                     face = "bold",
                     color = "black",
-                    margin = margin(r = 4, b = 3, t = 3, l = 4),
-                    hjust = 0.5
+                    margin = margin(r = 6, b = 4, t = 4, l = 6),
+                    hjust = 0.5,
+                    vjust = 0.5,
+                    angle = 90
                 ),
                 legend.text = element_text(
-                    size = 10,
+                    size = 12,
                     family = "mono",
                     color = "black",
-                    margin = margin(r = 4, b = 3, t = 3, l = 4),
+                    margin = margin(r = 6, b = 4, t = 4, l = 4),
                     hjust = 0.5
                 ),
                 legend.background = element_rect(
@@ -77,6 +79,8 @@ theme_adl <- function() {
                 legend.key.height = unit(0.75, "cm"),
                 legend.key.size = unit(0.6, "cm"),
                 legend.position = "right",
+                legend.title.position = "left",
+                legend.box = "vertical",
                 legend.text.align = 0.5,
                 legend.title.align = 0.5,
                 # Faceting
@@ -86,7 +90,7 @@ theme_adl <- function() {
                     linewidth = 1
                 ),
                 strip.text = element_text(
-                    size = 12,
+                    size = 13,
                     family = "mono",
                     face = "italic",
                     color = "black",
@@ -328,20 +332,20 @@ scale_discrete_fill_alternating <- function(...) {
 # ) +
 # theme_adl()
 
-# # Test 2: Boxplot with faceting (shows facet styling)
-# ggplot(mtcars, aes(factor(cyl), mpg, fill = factor(cyl))) +
-# geom_boxplot() +
-# facet_wrap(~am, labeller = labeller(am = c("0" = "Automatic", "1" = "Manual"))) +
-# scale_x_discrete(expand = c(0.1, 0.1)) +
-# scale_y_continuous(expand = c(0.05, 0.05)) +
-# labs(
-#     title = "MPG by Cylinders and Transmission",
-#     x = "Number of Cylinders",
-#     y = "Miles Per Gallon",
-#     fill = "Cylinders"
-# ) +
-# scale_discrete_fill_purples(n=3) +
-# theme_adl()
+# Test 2: Boxplot with faceting (shows facet styling)
+ggplot(mtcars, aes(factor(cyl), mpg, fill = factor(cyl))) +
+geom_boxplot() +
+facet_wrap(~am, labeller = labeller(am = c("0" = "Automatic", "1" = "Manual"))) +
+scale_x_discrete(expand = c(0.1, 0.1)) +
+scale_y_continuous(expand = c(0.05, 0.05)) +
+labs(
+    title = "MPG by Cylinders and Transmission",
+    x = "Number of Cylinders",
+    y = "Miles Per Gallon",
+    fill = "Cylinders"
+) +
+scale_discrete_fill_purples(n=3) +
+theme_adl()
 
 # # Test 3: Line plot with legend
 # iris_summary <- aggregate(Sepal.Length ~ Species, iris, mean)
