@@ -100,6 +100,7 @@ theme_adl <- function() {
     )
 }
 
+# Ocean sunset
 continuous_palette_ocean_sunset <- c(
     "#001219", "#005f73", "#0a9396", "#94d2bd", "#e9d8a6", "#ee9b00", "#ca6702", "#bb3e03", "#ae2012", "#9b2226"
 )
@@ -122,7 +123,6 @@ scale_discrete_colour_ocean_sunset <- function(n, ...) {
     ...
   )
 }
-
 scale_discrete_fill_ocean_sunset <- function(n, ...) {
   colors <- grDevices::colorRampPalette(continuous_palette_ocean_sunset)(n)
   ggplot2::scale_fill_manual(
@@ -131,6 +131,7 @@ scale_discrete_fill_ocean_sunset <- function(n, ...) {
   )
 }
 
+# Midnight rose
 continuous_palette_midnight_rose <- c(
     "#34091e", "#430c27", "#55062d", "#660033", "#802754", "#994d74", "#b37495", "#cc9ab5", "#ecc5dd", "#f3dbea"
 )
@@ -153,7 +154,6 @@ scale_discrete_colour_midnight_rose <- function(n, ...) {
     ...
   )
 }
-
 scale_discrete_fill_midnight_rose <- function(n, ...) {
   colors <- grDevices::colorRampPalette(continuous_palette_midnight_rose)(n)
   ggplot2::scale_fill_manual(
@@ -162,37 +162,159 @@ scale_discrete_fill_midnight_rose <- function(n, ...) {
   )
 }
 
-discrete_palette_colourful <- c(
-    "#4d86a5", "#cf0bf1", "#75f2fb", "#133b91", "#98da1f", "#fc9f5b", "#d60b2d", "#c3c4e9", "#5d2689", "#378b64"
+
+# Sequential
+continuous_palette_sequential <- c(
+    "#122740", "#1b485e", "#326b77", "#568b87", "#80ae9a", "#b5d1ae" 
 )
-scale_discrete_colour_colourful <- function(...) {
-    ggplot2::scale_colour_manual(
-        values = discrete_palette_colourful,
+scale_continuous_colour_sequential <- function(...) {
+    ggplot2::scale_colour_gradientn(
+        colours = continuous_palette_sequential,
         ...
     )
 }
-scale_discrete_fill_colourful <- function(...) {
+scale_continuous_fill_sequential <- function(...) {
+    ggplot2::scale_fill_gradientn(
+        colours = continuous_palette_sequential,
+        ...
+    )
+}
+scale_discrete_colour_sequential <- function(n, ...) {
+  colors <- grDevices::colorRampPalette(continuous_palette_sequential)(n)
+  ggplot2::scale_color_manual(
+    values = colors,
+    ...
+  )
+}
+scale_discrete_fill_sequential <- function(n, ...) {
+  colors <- grDevices::colorRampPalette(continuous_palette_sequential)(n)
+  ggplot2::scale_fill_manual(
+    values = colors,
+    ...
+  )
+}
+
+
+# Purples
+continuous_palette_purples <- c(
+    "#5e4c5f", "#999999", "#ffbb6f"
+)
+scale_continuous_colour_purples <- function(...) {
+    ggplot2::scale_colour_gradientn(
+        colours = continuous_palette_purples,
+        ...
+    )
+}
+scale_continuous_fill_purples <- function(...) {
+    ggplot2::scale_fill_gradientn(
+        colours = continuous_palette_purples,
+        ...
+    )
+}
+scale_discrete_colour_purples <- function(n, ...) {
+  colors <- grDevices::colorRampPalette(continuous_palette_purples)(n)
+  ggplot2::scale_color_manual(
+    values = colors,
+    ...
+  )
+}
+scale_discrete_fill_purples <- function(n, ...) {
+  colors <- grDevices::colorRampPalette(continuous_palette_purples)(n)
+  ggplot2::scale_fill_manual(
+    values = colors,
+    ...
+  )
+}
+
+
+# # Colorful
+# discrete_palette_colourful <- c(
+#     "#4d86a5", "#cf0bf1", "#75f2fb", "#133b91", "#98da1f", "#fc9f5b", "#d60b2d", "#c3c4e9", "#5d2689", "#378b64"
+# )
+# scale_discrete_colour_colourful <- function(...) {
+#     ggplot2::scale_colour_manual(
+#         values = discrete_palette_colourful,
+#         ...
+#     )
+# }
+# scale_discrete_fill_colourful <- function(...) {
+#     ggplot2::scale_fill_manual(
+#         values = discrete_palette_colourful,
+#         ...
+#     )
+# }
+
+# # Dark garden
+# discrete_palette_dark_garden <- c(
+#     "#011936", "#465362", "#82a3a1", "#9fc490", "#c0dfa1"
+# )
+# scale_discrete_colour_dark_garden <- function(...) {
+#     ggplot2::scale_colour_manual(
+#         values = discrete_palette_dark_garden,
+#         ...
+#     )
+# }
+# scale_discrete_fill_dark_garden <- function(...) {
+#     ggplot2::scale_fill_manual(
+#         values = discrete_palette_dark_garden,
+#         ...
+#     )
+# }
+
+
+# Bright
+discrete_palette_bright <- c(
+    "#003a7d", "#008dff", "#ff73b6", "#c701ff", "#4ecb8d", "#ff9d3a", "#f9e858", "#d83034"
+)
+scale_discrete_colour_bright <- function(...) {
+    ggplot2::scale_colour_manual(
+        values = discrete_palette_bright,
+        ...
+    )
+}
+scale_discrete_fill_bright <- function(...) {
     ggplot2::scale_fill_manual(
-        values = discrete_palette_colourful,
+        values = discrete_palette_bright,
         ...
     )
 }
 
-discrete_palette_dark_garden <- c(
-    "#011936", "#465362", "#82a3a1", "#9fc490", "#c0dfa1"
+
+# Muted
+discrete_palette_muted <- c(
+    "#c8c8c8", "#f0c571", "#59a89c", "#0b81a2", "#e25759", "#9d2c00", "#7E4794", "#36b700"
 )
-scale_discrete_colour_dark_garden <- function(...) {
+scale_discrete_colour_muted <- function(...) {
     ggplot2::scale_colour_manual(
-        values = discrete_palette_dark_garden,
+        values = discrete_palette_muted,
         ...
     )
 }
-scale_discrete_fill_dark_garden <- function(...) {
+scale_discrete_fill_muted <- function(...) {
     ggplot2::scale_fill_manual(
-        values = discrete_palette_dark_garden,
+        values = discrete_palette_muted,
         ...
     )
 }
+
+
+# Alternating
+discrete_palette_alternating <- c(
+    "#8fd7d7", "#00b0be", "#ff8ca1", "#f45f74", "#bdd373", "#98c127", "#ffcd8e", "#ffb255"
+)
+scale_discrete_colour_alternating <- function(...) {
+    ggplot2::scale_colour_manual(
+        values = discrete_palette_alternating,
+        ...
+    )
+}
+scale_discrete_fill_alternating <- function(...) {
+    ggplot2::scale_fill_manual(
+        values = discrete_palette_alternating,
+        ...
+    )
+}
+
 
 # # Test 1: Simple scatter plot with clean axes
 # ggplot(mtcars, aes(wt, mpg)) +
@@ -218,7 +340,7 @@ scale_discrete_fill_dark_garden <- function(...) {
 #     y = "Miles Per Gallon",
 #     fill = "Cylinders"
 # ) +
-# scale_discrete_fill_dark_garden() +
+# scale_discrete_fill_purples(n=3) +
 # theme_adl()
 
 # # Test 3: Line plot with legend
@@ -234,5 +356,5 @@ scale_discrete_fill_dark_garden <- function(...) {
 #     y = "Sepal Length (cm)",
 #     color = "Species"
 # ) +
-#     scale_discrete_colour_dark_garden() +
+#     scale_discrete_colour_midnight_rose(n = 3) +
 #     theme_adl()
