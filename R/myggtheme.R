@@ -78,6 +78,7 @@ theme_adl <- function() {
                 legend.key.width = unit(0.75, "cm"),
                 legend.key.height = unit(0.75, "cm"),
                 legend.key.size = unit(0.6, "cm"),
+                legend.margin = margin(t = 4, r = 4, b = 4, l = 4),
                 legend.position = "right",
                 legend.title.position = "left",
                 legend.box = "vertical",
@@ -96,11 +97,31 @@ theme_adl <- function() {
                     color = "black",
                     margin = margin(t = 4, b = 4) 
                 ),
-                panel.spacing = unit(0.5, "cm"),
-                plot.margin = margin(t = 0.5, r = 0.5, b = 0.5, l = 0.5, unit = "cm"),
+                panel.spacing = unit(0.2, "cm"),
+                plot.margin = margin(t = 0.2, r = 0.2, b = 0.2, l = 0.2, unit = "cm"),
                 plot.background = element_rect(fill = "white"),
                 panel.background = element_rect(fill = "white")
             )
+    )
+}
+
+visualize_palette <- function(colors) {
+  df <- data.frame(
+    index = seq_along(colors),
+    color = colors
+  )
+  
+  ggplot(df, aes(x = index, y = 1, fill = color)) +
+    geom_tile(width = 0.9, height = 0.5) +
+    scale_fill_identity() +
+    scale_x_continuous(breaks = seq_along(colors)) +
+    scale_y_continuous(expand = c(0.3, 0.3)) +
+    labs(title = "Color Palette", x = "Index", y = NULL) +
+    theme_minimal() +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      panel.grid = element_blank()
     )
 }
 
@@ -333,19 +354,19 @@ scale_discrete_fill_alternating <- function(...) {
 # theme_adl()
 
 # Test 2: Boxplot with faceting (shows facet styling)
-ggplot(mtcars, aes(factor(cyl), mpg, fill = factor(cyl))) +
-geom_boxplot() +
-facet_wrap(~am, labeller = labeller(am = c("0" = "Automatic", "1" = "Manual"))) +
-scale_x_discrete(expand = c(0.1, 0.1)) +
-scale_y_continuous(expand = c(0.05, 0.05)) +
-labs(
-    title = "MPG by Cylinders and Transmission",
-    x = "Number of Cylinders",
-    y = "Miles Per Gallon",
-    fill = "Cylinders"
-) +
-scale_discrete_fill_purples(n=3) +
-theme_adl()
+# ggplot(mtcars, aes(factor(cyl), mpg, fill = factor(cyl))) +
+# geom_boxplot() +
+# facet_wrap(~am, labeller = labeller(am = c("0" = "Automatic", "1" = "Manual"))) +
+# scale_x_discrete(expand = c(0.1, 0.1)) +
+# scale_y_continuous(expand = c(0.05, 0.05)) +
+# labs(
+#     title = "MPG by Cylinders and Transmission",
+#     x = "Number of Cylinders",
+#     y = "Miles Per Gallon",
+#     fill = "Cylinders"
+# ) +
+# scale_discrete_fill_purples(n=3) +
+# theme_adl()
 
 # # Test 3: Line plot with legend
 # iris_summary <- aggregate(Sepal.Length ~ Species, iris, mean)
