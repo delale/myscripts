@@ -1,14 +1,33 @@
 library("ggplot2")
 library("ggthemes")
+library("ggtext")
+library("systemfonts")
 
-theme_adl <- function() {
+
+get_base_fontfamily <- function(family = "OpenDyslexic Nerd Font") {
+  if (family %in% system_fonts()$family) {
+    return(family)
+  } else {
+    warning(paste(family), " not found. Using 'mono' as fallback")
+    return("mono")
+  }
+}
+
+theme_adl <- function(base_fontfamily = NULL) {
+    if (is.null(base_fontfamily)) {
+      base_fontfamily <- get_base_fontfamily()
+    } else {
+      base_fontfamily <- get_base_fontfamily(family = base_fontfamily)
+    }
+    print(base_fontfamily)
+
     return(
         theme_void() +
             theme(
                 # Labels
                 plot.title = element_text(
                     size = 16,
-                    family = "mono",
+                    family = base_fontfamily,
                     face = "bold.italic",
                     color = "black",
                     hjust = 0.5,
@@ -17,7 +36,7 @@ theme_adl <- function() {
                 plot.title.position = "plot",
                 axis.title.x = element_text(
                     size = 14,
-                    family = "mono",
+                    family = base_fontfamily,
                     face = "bold",
                     color = "black",
                     angle = 0,
@@ -25,7 +44,7 @@ theme_adl <- function() {
                 ),
                 axis.title.y = element_text(
                     size = 14,
-                    family = "mono",
+                    family = base_fontfamily,
                     face = "bold",
                     color = "black",
                     angle = 90,
@@ -33,13 +52,13 @@ theme_adl <- function() {
                 ),
                 axis.text.y = element_text(
                     size = 10,
-                    family = "mono",
+                    family = base_fontfamily,
                     color = "black",
                     margin = margin(r = 6)
                 ),
                 axis.text.x = element_text(
                     size = 10,
-                    family = "mono",
+                    family = base_fontfamily,
                     color = "black",
                     margin = margin(t = 6)
                 ),
@@ -54,7 +73,7 @@ theme_adl <- function() {
                 # Legend
                 legend.title = element_text(
                     size = 14,
-                    family = "mono",
+                    family = base_fontfamily,
                     face = "bold",
                     color = "black",
                     margin = margin(r = 6, b = 4, t = 4, l = 6),
@@ -64,7 +83,7 @@ theme_adl <- function() {
                 ),
                 legend.text = element_text(
                     size = 12,
-                    family = "mono",
+                    family = base_fontfamily,
                     color = "black",
                     margin = margin(r = 6, b = 4, t = 4, l = 4),
                     hjust = 0.5
@@ -92,10 +111,26 @@ theme_adl <- function() {
                 ),
                 strip.text = element_text(
                     size = 13,
-                    family = "mono",
+                    family = base_fontfamily,
                     face = "italic",
                     color = "black",
-                    margin = margin(t = 4, b = 4) 
+                    margin = margin(t = 6, b = 6) 
+                ),
+                strip.text.x = element_text(
+                    size = 13,
+                    angle = 0,
+                    family = base_fontfamily,
+                    face = "italic",
+                    color = "black",
+                    margin = margin(t = 6, b = 6) 
+                ),
+                strip.text.y = element_text(
+                    size = 13,
+                    angle = -90,
+                    family = base_fontfamily,
+                    face = "italic",
+                    color = "black",
+                    margin = margin(r = 6, l = 6) 
                 ),
                 panel.spacing = unit(0.2, "cm"),
                 plot.margin = margin(t = 0.2, r = 0.2, b = 0.2, l = 0.2, unit = "cm"),
@@ -289,7 +324,7 @@ scale_discrete_fill_purples <- function(n, ...) {
 
 # Bright
 discrete_palette_bright <- c(
-    "#003a7d", "#008dff", "#ff73b6", "#c701ff", "#4ecb8d", "#ff9d3a", "#f9e858", "#d83034"
+    "#003a7d", "#ff73b6", "#4ecb8d", "#d83034", "#ff9d3a", "#008dff",  "#f9e858", "#c701ff" 
 )
 scale_discrete_colour_bright <- function(...) {
     ggplot2::scale_colour_manual(
@@ -307,7 +342,7 @@ scale_discrete_fill_bright <- function(...) {
 
 # Muted
 discrete_palette_muted <- c(
-    "#c8c8c8",  "#0b81a2", "#36b700", "#9d2c00", "#59a89c",  "#f0c571",   "#7E4794", "#e25759" 
+    "#817a7a",  "#0b81a2", "#36b700", "#9d2c00", "#59a89c",  "#f0c571",   "#7E4794", "#e25759" 
 )
 scale_discrete_colour_muted <- function(...) {
     ggplot2::scale_colour_manual(
@@ -353,7 +388,7 @@ scale_discrete_fill_alternating <- function(...) {
 # ) +
 # theme_adl()
 
-# Test 2: Boxplot with faceting (shows facet styling)
+# # Test 2: Boxplot with faceting (shows facet styling)
 # ggplot(mtcars, aes(factor(cyl), mpg, fill = factor(cyl))) +
 # geom_boxplot() +
 # facet_wrap(~am, labeller = labeller(am = c("0" = "Automatic", "1" = "Manual"))) +
@@ -381,5 +416,5 @@ scale_discrete_fill_alternating <- function(...) {
 #     y = "Sepal Length (cm)",
 #     color = "Species"
 # ) +
-#     scale_discrete_colour_midnight_rose(n = 3) +
+#     scale_discrete_colour_bright() +
 #     theme_adl()
