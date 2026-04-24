@@ -28,7 +28,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     size = 16,
                     family = base_fontfamily,
                     face = "bold.italic",
-                    color = "black",
+                    colour = "black",
                     hjust = 0.5,
                     margin = margin(b = 5, t = 10)
                 ),
@@ -36,7 +36,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     size = 14,
                     family = base_fontfamily,
                     face = "bold.italic",
-                    color = "black",
+                    colour = "black",
                     hjust = 0.5,
                     margin = margin(b = 5, t = 2)
                 ),
@@ -45,7 +45,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     size = 14,
                     family = base_fontfamily,
                     face = "bold",
-                    color = "black",
+                    colour = "black",
                     angle = 0,
                     margin = margin(t = 6)
                 ),
@@ -53,27 +53,27 @@ theme_adl <- function(base_fontfamily = NULL) {
                     size = 14,
                     family = base_fontfamily,
                     face = "bold",
-                    color = "black",
+                    colour = "black",
                     angle = 90,
                     margin = margin(r = 6)
                 ),
                 axis.text.y = element_text(
                     size = 10,
                     family = base_fontfamily,
-                    color = "black",
+                    colour = "black",
                     margin = margin(r = 6)
                 ),
                 axis.text.x = element_text(
                     size = 10,
                     family = base_fontfamily,
-                    color = "black",
+                    colour = "black",
                     margin = margin(t = 6)
                 ),
                 plot.caption = element_text(
                     size = 12,
                     family = base_fontfamily,
                     face = "italic",
-                    color = "black",
+                    colour = "black",
                     hjust = 1
                 ),
                 plot.caption.position = "plot",
@@ -81,13 +81,13 @@ theme_adl <- function(base_fontfamily = NULL) {
                     size = 12,
                     family = base_fontfamily,
                     face = "italic",
-                    color = "black",
+                    colour = "black",
                     hjust = 0
                 ),
                 plot.tag.position = "bottomleft",
                 # Ticks and lines
                 axis.ticks.length = unit(0.2, "cm"),
-                axis.ticks = element_line(color = "black", linewidth = 0.7),
+                axis.ticks = element_line(colour = "black", linewidth = 0.7),
                 axis.line.x = element_line(colour = "black", linewidth = 1),
                 axis.line.y = element_line(colour = "black", linewidth = 1),
                 axis.line = element_blank(),
@@ -104,7 +104,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     size = 14,
                     family = base_fontfamily,
                     face = "bold",
-                    color = "black",
+                    colour = "black",
                     margin = margin(r = 6, b = 4, t = 4, l = 6),
                     hjust = 0.5,
                     vjust = 0.5,
@@ -113,13 +113,13 @@ theme_adl <- function(base_fontfamily = NULL) {
                 legend.text = element_text(
                     size = 12,
                     family = base_fontfamily,
-                    color = "black",
+                    colour = "black",
                     margin = margin(r = 6, b = 4, t = 4, l = 4),
                     hjust = 0.5
                 ),
                 legend.background = element_rect(
                     fill = "ivory",
-                    color = "black",
+                    colour = "black",
                     linewidth = 1
                 ),
                 legend.key = element_rect(colour = "black", fill = NA),
@@ -135,14 +135,14 @@ theme_adl <- function(base_fontfamily = NULL) {
                 # Faceting
                 strip.background = element_rect(
                     fill = "ivory",
-                    color = "black",
+                    colour = "black",
                     linewidth = 1
                 ),
                 strip.text = element_text(
                     size = 13,
                     family = base_fontfamily,
                     face = "italic",
-                    color = "black",
+                    colour = "black",
                     margin = margin(t = 6, b = 6)
                 ),
                 strip.text.x = element_text(
@@ -150,7 +150,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     angle = 0,
                     family = base_fontfamily,
                     face = "italic",
-                    color = "black",
+                    colour = "black",
                     margin = margin(t = 6, b = 6)
                 ),
                 strip.text.y = element_text(
@@ -158,7 +158,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     angle = -90,
                     family = base_fontfamily,
                     face = "italic",
-                    color = "black",
+                    colour = "black",
                     margin = margin(r = 6, l = 6)
                 ),
                 panel.spacing = unit(0.2, "cm"),
@@ -175,18 +175,18 @@ theme_adl <- function(base_fontfamily = NULL) {
     )
 }
 
-visualize_palette <- function(colors) {
+visualize_palette <- function(colours) {
     df <- data.frame(
-        index = seq_along(colors),
-        color = colors
+        index = seq_along(colours),
+        colour = colours
     )
 
-    ggplot(df, aes(x = index, y = 1, fill = color)) +
+    ggplot(df, aes(x = index, y = 1, fill = colour)) +
         geom_tile(width = 0.9, height = 0.5) +
         scale_fill_identity() +
-        scale_x_continuous(breaks = seq_along(colors)) +
+        scale_x_continuous(breaks = seq_along(colours)) +
         scale_y_continuous(expand = c(0.3, 0.3)) +
-        labs(title = "Color Palette", x = "Index", y = NULL) +
+        labs(title = "colour Palette", x = "Index", y = NULL) +
         theme_minimal() +
         theme(
             axis.text.y = element_blank(),
@@ -221,16 +221,16 @@ scale_continuous_fill_ocean_sunset <- function(...) {
     )
 }
 scale_discrete_colour_ocean_sunset <- function(n, ...) {
-    colors <- grDevices::colorRampPalette(continuous_palette_ocean_sunset)(n)
-    ggplot2::scale_color_manual(
-        values = colors,
+    colours <- grDevices::colourRampPalette(continuous_palette_ocean_sunset)(n)
+    ggplot2::scale_colour_manual(
+        values = colours,
         ...
     )
 }
 scale_discrete_fill_ocean_sunset <- function(n, ...) {
-    colors <- grDevices::colorRampPalette(continuous_palette_ocean_sunset)(n)
+    colours <- grDevices::colourRampPalette(continuous_palette_ocean_sunset)(n)
     ggplot2::scale_fill_manual(
-        values = colors,
+        values = colours,
         ...
     )
 }
@@ -261,16 +261,16 @@ scale_continuous_fill_midnight_rose <- function(...) {
     )
 }
 scale_discrete_colour_midnight_rose <- function(n, ...) {
-    colors <- grDevices::colorRampPalette(continuous_palette_midnight_rose)(n)
-    ggplot2::scale_color_manual(
-        values = colors,
+    colours <- grDevices::colourRampPalette(continuous_palette_midnight_rose)(n)
+    ggplot2::scale_colour_manual(
+        values = colours,
         ...
     )
 }
 scale_discrete_fill_midnight_rose <- function(n, ...) {
-    colors <- grDevices::colorRampPalette(continuous_palette_midnight_rose)(n)
+    colours <- grDevices::colourRampPalette(continuous_palette_midnight_rose)(n)
     ggplot2::scale_fill_manual(
-        values = colors,
+        values = colours,
         ...
     )
 }
@@ -298,16 +298,16 @@ scale_continuous_fill_sequential <- function(...) {
     )
 }
 scale_discrete_colour_sequential <- function(n, ...) {
-    colors <- grDevices::colorRampPalette(continuous_palette_sequential)(n)
-    ggplot2::scale_color_manual(
-        values = colors,
+    colours <- grDevices::colourRampPalette(continuous_palette_sequential)(n)
+    ggplot2::scale_colour_manual(
+        values = colours,
         ...
     )
 }
 scale_discrete_fill_sequential <- function(n, ...) {
-    colors <- grDevices::colorRampPalette(continuous_palette_sequential)(n)
+    colours <- grDevices::colourRampPalette(continuous_palette_sequential)(n)
     ggplot2::scale_fill_manual(
-        values = colors,
+        values = colours,
         ...
     )
 }
@@ -332,22 +332,22 @@ scale_continuous_fill_purples <- function(...) {
     )
 }
 scale_discrete_colour_purples <- function(n, ...) {
-    colors <- grDevices::colorRampPalette(continuous_palette_purples)(n)
-    ggplot2::scale_color_manual(
-        values = colors,
+    colours <- grDevices::colourRampPalette(continuous_palette_purples)(n)
+    ggplot2::scale_colour_manual(
+        values = colours,
         ...
     )
 }
 scale_discrete_fill_purples <- function(n, ...) {
-    colors <- grDevices::colorRampPalette(continuous_palette_purples)(n)
+    colours <- grDevices::colourRampPalette(continuous_palette_purples)(n)
     ggplot2::scale_fill_manual(
-        values = colors,
+        values = colours,
         ...
     )
 }
 
 
-# # Colorful
+# # colourful
 # discrete_palette_colourful <- c(
 #     "#4d86a5", "#cf0bf1", "#75f2fb", "#133b91", "#98da1f", "#fc9f5b", "#d60b2d", "#c3c4e9", "#5d2689", "#378b64"
 # )
@@ -457,7 +457,7 @@ scale_discrete_fill_alternating <- function(...) {
 
 # # Test 1: Simple scatter plot with clean axes
 # ggplot(mtcars, aes(wt, mpg)) +
-# geom_point(size = 3, color = "darkblue") +
+# geom_point(size = 3, colour = "darkblue") +
 # scale_x_continuous(expand = c(0.05, 0.05)) +
 # scale_y_continuous(expand = c(0.05, 0.05)) +
 # labs(
@@ -487,7 +487,7 @@ scale_discrete_fill_alternating <- function(...) {
 
 # # Test 3: Line plot with legend
 # iris_summary <- aggregate(Sepal.Length ~ Species, iris, mean)
-# ggplot(iris, aes(Sepal.Width, Sepal.Length, color = Species)) +
+# ggplot(iris, aes(Sepal.Width, Sepal.Length, colour = Species)) +
 # geom_point(size = 2) +
 # geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
 # scale_x_continuous(expand = c(0.05, 0.05)) +
@@ -496,7 +496,7 @@ scale_discrete_fill_alternating <- function(...) {
 #     title = "Sepal Dimensions by Species",
 #     x = "Sepal Width (cm)",
 #     y = "Sepal Length (cm)",
-#     color = "Species"
+#     colour = "Species"
 # ) +
 #     scale_discrete_colour_bright() +
 #     theme_adl()
