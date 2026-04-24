@@ -31,7 +31,15 @@ theme_adl <- function(base_fontfamily = NULL) {
                     face = "bold.italic",
                     color = "black",
                     hjust = 0.5,
-                    margin = margin(b = 10, t = 10)
+                    margin = margin(b = 5, t = 10)
+                ),
+                plot.subtitle = element_text(
+                    size = 14,
+                    family = base_fontfamily,
+                    face = "bold.italic",
+                    color = "black",
+                    hjust = 0.5,
+                    margin = margin(b = 5, t = 2)
                 ),
                 plot.title.position = "plot",
                 axis.title.x = element_text(
@@ -62,6 +70,22 @@ theme_adl <- function(base_fontfamily = NULL) {
                     color = "black",
                     margin = margin(t = 6)
                 ),
+                plot.caption = element_text(
+                    size = 12,
+                    family = base_fontfamily,
+                    face = "italic",
+                    color = "black",
+                    hjust = 1
+                ),
+                plot.caption.position = "plot",
+                plot.tag = element_text(
+                    size = 12,
+                    family = base_fontfamily,
+                    face = "italic",
+                    color = "black",
+                    hjust = 0
+                ),
+                plot.tag.position = "bottomleft",
                 # Ticks and lines
                 axis.ticks.length = unit(0.2, "cm"),
                 axis.ticks = element_line(color = "black", linewidth = 0.7),
@@ -384,7 +408,10 @@ scale_discrete_fill_alternating <- function(...) {
 # labs(
 #     title = "Fuel Efficiency vs Weight",
 #     x = "Weight (1000 lbs)",
-#     y = "Miles Per Gallon"
+#     y = "Miles Per Gallon",
+#     caption = "This is a caption",
+#     subtitle = "Subtitle",
+#     tag = "Fig.1"
 # ) +
 # theme_adl()
 
