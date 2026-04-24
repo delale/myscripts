@@ -5,21 +5,20 @@ library("systemfonts")
 
 
 get_base_fontfamily <- function(family = "OpenDyslexic Nerd Font") {
-  if (family %in% system_fonts()$family) {
-    return(family)
-  } else {
-    warning(paste(family), " not found. Using 'mono' as fallback")
-    return("mono")
-  }
+    if (family %in% system_fonts()$family) {
+        return(family)
+    } else {
+        warning(paste(family), " not found. Using 'mono' as fallback")
+        return("mono")
+    }
 }
 
 theme_adl <- function(base_fontfamily = NULL) {
     if (is.null(base_fontfamily)) {
-      base_fontfamily <- get_base_fontfamily()
+        base_fontfamily <- get_base_fontfamily()
     } else {
-      base_fontfamily <- get_base_fontfamily(family = base_fontfamily)
+        base_fontfamily <- get_base_fontfamily(family = base_fontfamily)
     }
-    print(base_fontfamily)
 
     return(
         theme_void() +
@@ -92,8 +91,14 @@ theme_adl <- function(base_fontfamily = NULL) {
                 axis.line.x = element_line(colour = "black", linewidth = 1),
                 axis.line.y = element_line(colour = "black", linewidth = 1),
                 axis.line = element_blank(),
-                panel.grid.major = element_line(colour = "lightgrey", linewidth = 0.5),
-                panel.grid.minor = element_line(colour = "lightgrey", linewidth = 0.3),
+                panel.grid.major = element_line(
+                    colour = "lightgrey",
+                    linewidth = 0.5
+                ),
+                panel.grid.minor = element_line(
+                    colour = "lightgrey",
+                    linewidth = 0.3
+                ),
                 # Legend
                 legend.title = element_text(
                     size = 14,
@@ -138,7 +143,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     family = base_fontfamily,
                     face = "italic",
                     color = "black",
-                    margin = margin(t = 6, b = 6) 
+                    margin = margin(t = 6, b = 6)
                 ),
                 strip.text.x = element_text(
                     size = 13,
@@ -146,7 +151,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     family = base_fontfamily,
                     face = "italic",
                     color = "black",
-                    margin = margin(t = 6, b = 6) 
+                    margin = margin(t = 6, b = 6)
                 ),
                 strip.text.y = element_text(
                     size = 13,
@@ -154,10 +159,16 @@ theme_adl <- function(base_fontfamily = NULL) {
                     family = base_fontfamily,
                     face = "italic",
                     color = "black",
-                    margin = margin(r = 6, l = 6) 
+                    margin = margin(r = 6, l = 6)
                 ),
                 panel.spacing = unit(0.2, "cm"),
-                plot.margin = margin(t = 0.2, r = 0.2, b = 0.2, l = 0.2, unit = "cm"),
+                plot.margin = margin(
+                    t = 0.2,
+                    r = 0.2,
+                    b = 0.2,
+                    l = 0.2,
+                    unit = "cm"
+                ),
                 plot.background = element_rect(fill = "white"),
                 panel.background = element_rect(fill = "white")
             )
@@ -165,28 +176,37 @@ theme_adl <- function(base_fontfamily = NULL) {
 }
 
 visualize_palette <- function(colors) {
-  df <- data.frame(
-    index = seq_along(colors),
-    color = colors
-  )
-  
-  ggplot(df, aes(x = index, y = 1, fill = color)) +
-    geom_tile(width = 0.9, height = 0.5) +
-    scale_fill_identity() +
-    scale_x_continuous(breaks = seq_along(colors)) +
-    scale_y_continuous(expand = c(0.3, 0.3)) +
-    labs(title = "Color Palette", x = "Index", y = NULL) +
-    theme_minimal() +
-    theme(
-      axis.text.y = element_blank(),
-      axis.ticks.y = element_blank(),
-      panel.grid = element_blank()
+    df <- data.frame(
+        index = seq_along(colors),
+        color = colors
     )
+
+    ggplot(df, aes(x = index, y = 1, fill = color)) +
+        geom_tile(width = 0.9, height = 0.5) +
+        scale_fill_identity() +
+        scale_x_continuous(breaks = seq_along(colors)) +
+        scale_y_continuous(expand = c(0.3, 0.3)) +
+        labs(title = "Color Palette", x = "Index", y = NULL) +
+        theme_minimal() +
+        theme(
+            axis.text.y = element_blank(),
+            axis.ticks.y = element_blank(),
+            panel.grid = element_blank()
+        )
 }
 
 # Ocean sunset
 continuous_palette_ocean_sunset <- c(
-    "#001219", "#005f73", "#0a9396", "#94d2bd", "#e9d8a6", "#ee9b00", "#ca6702", "#bb3e03", "#ae2012", "#9b2226"
+    "#001219",
+    "#005f73",
+    "#0a9396",
+    "#94d2bd",
+    "#e9d8a6",
+    "#ee9b00",
+    "#ca6702",
+    "#bb3e03",
+    "#ae2012",
+    "#9b2226"
 )
 scale_continuous_colour_ocean_sunset <- function(...) {
     ggplot2::scale_colour_gradientn(
@@ -201,23 +221,32 @@ scale_continuous_fill_ocean_sunset <- function(...) {
     )
 }
 scale_discrete_colour_ocean_sunset <- function(n, ...) {
-  colors <- grDevices::colorRampPalette(continuous_palette_ocean_sunset)(n)
-  ggplot2::scale_color_manual(
-    values = colors,
-    ...
-  )
+    colors <- grDevices::colorRampPalette(continuous_palette_ocean_sunset)(n)
+    ggplot2::scale_color_manual(
+        values = colors,
+        ...
+    )
 }
 scale_discrete_fill_ocean_sunset <- function(n, ...) {
-  colors <- grDevices::colorRampPalette(continuous_palette_ocean_sunset)(n)
-  ggplot2::scale_fill_manual(
-    values = colors,
-    ...
-  )
+    colors <- grDevices::colorRampPalette(continuous_palette_ocean_sunset)(n)
+    ggplot2::scale_fill_manual(
+        values = colors,
+        ...
+    )
 }
 
 # Midnight rose
 continuous_palette_midnight_rose <- c(
-    "#34091e", "#430c27", "#55062d", "#660033", "#802754", "#994d74", "#b37495", "#cc9ab5", "#ecc5dd", "#f3dbea"
+    "#34091e",
+    "#430c27",
+    "#55062d",
+    "#660033",
+    "#802754",
+    "#994d74",
+    "#b37495",
+    "#cc9ab5",
+    "#ecc5dd",
+    "#f3dbea"
 )
 scale_continuous_colour_midnight_rose <- function(...) {
     ggplot2::scale_colour_gradientn(
@@ -232,24 +261,29 @@ scale_continuous_fill_midnight_rose <- function(...) {
     )
 }
 scale_discrete_colour_midnight_rose <- function(n, ...) {
-  colors <- grDevices::colorRampPalette(continuous_palette_midnight_rose)(n)
-  ggplot2::scale_color_manual(
-    values = colors,
-    ...
-  )
+    colors <- grDevices::colorRampPalette(continuous_palette_midnight_rose)(n)
+    ggplot2::scale_color_manual(
+        values = colors,
+        ...
+    )
 }
 scale_discrete_fill_midnight_rose <- function(n, ...) {
-  colors <- grDevices::colorRampPalette(continuous_palette_midnight_rose)(n)
-  ggplot2::scale_fill_manual(
-    values = colors,
-    ...
-  )
+    colors <- grDevices::colorRampPalette(continuous_palette_midnight_rose)(n)
+    ggplot2::scale_fill_manual(
+        values = colors,
+        ...
+    )
 }
 
 
 # Sequential
 continuous_palette_sequential <- c(
-    "#122740", "#1b485e", "#326b77", "#568b87", "#80ae9a", "#b5d1ae" 
+    "#122740",
+    "#1b485e",
+    "#326b77",
+    "#568b87",
+    "#80ae9a",
+    "#b5d1ae"
 )
 scale_continuous_colour_sequential <- function(...) {
     ggplot2::scale_colour_gradientn(
@@ -264,24 +298,26 @@ scale_continuous_fill_sequential <- function(...) {
     )
 }
 scale_discrete_colour_sequential <- function(n, ...) {
-  colors <- grDevices::colorRampPalette(continuous_palette_sequential)(n)
-  ggplot2::scale_color_manual(
-    values = colors,
-    ...
-  )
+    colors <- grDevices::colorRampPalette(continuous_palette_sequential)(n)
+    ggplot2::scale_color_manual(
+        values = colors,
+        ...
+    )
 }
 scale_discrete_fill_sequential <- function(n, ...) {
-  colors <- grDevices::colorRampPalette(continuous_palette_sequential)(n)
-  ggplot2::scale_fill_manual(
-    values = colors,
-    ...
-  )
+    colors <- grDevices::colorRampPalette(continuous_palette_sequential)(n)
+    ggplot2::scale_fill_manual(
+        values = colors,
+        ...
+    )
 }
 
 
 # Purples
 continuous_palette_purples <- c(
-    "#5e4c5f", "#999999", "#ffbb6f"
+    "#5e4c5f",
+    "#999999",
+    "#ffbb6f"
 )
 scale_continuous_colour_purples <- function(...) {
     ggplot2::scale_colour_gradientn(
@@ -296,18 +332,18 @@ scale_continuous_fill_purples <- function(...) {
     )
 }
 scale_discrete_colour_purples <- function(n, ...) {
-  colors <- grDevices::colorRampPalette(continuous_palette_purples)(n)
-  ggplot2::scale_color_manual(
-    values = colors,
-    ...
-  )
+    colors <- grDevices::colorRampPalette(continuous_palette_purples)(n)
+    ggplot2::scale_color_manual(
+        values = colors,
+        ...
+    )
 }
 scale_discrete_fill_purples <- function(n, ...) {
-  colors <- grDevices::colorRampPalette(continuous_palette_purples)(n)
-  ggplot2::scale_fill_manual(
-    values = colors,
-    ...
-  )
+    colors <- grDevices::colorRampPalette(continuous_palette_purples)(n)
+    ggplot2::scale_fill_manual(
+        values = colors,
+        ...
+    )
 }
 
 
@@ -345,10 +381,16 @@ scale_discrete_fill_purples <- function(n, ...) {
 #     )
 # }
 
-
 # Bright
 discrete_palette_bright <- c(
-    "#003a7d", "#ff73b6", "#4ecb8d", "#d83034", "#ff9d3a", "#008dff",  "#f9e858", "#c701ff" 
+    "#003a7d",
+    "#ff73b6",
+    "#4ecb8d",
+    "#d83034",
+    "#ff9d3a",
+    "#008dff",
+    "#f9e858",
+    "#c701ff"
 )
 scale_discrete_colour_bright <- function(...) {
     ggplot2::scale_colour_manual(
@@ -366,7 +408,14 @@ scale_discrete_fill_bright <- function(...) {
 
 # Muted
 discrete_palette_muted <- c(
-    "#817a7a",  "#0b81a2", "#36b700", "#9d2c00", "#59a89c",  "#f0c571",   "#7E4794", "#e25759" 
+    "#817a7a",
+    "#0b81a2",
+    "#36b700",
+    "#9d2c00",
+    "#59a89c",
+    "#f0c571",
+    "#7E4794",
+    "#e25759"
 )
 scale_discrete_colour_muted <- function(...) {
     ggplot2::scale_colour_manual(
@@ -384,7 +433,14 @@ scale_discrete_fill_muted <- function(...) {
 
 # Alternating
 discrete_palette_alternating <- c(
-    "#8fd7d7", "#00b0be", "#ff8ca1", "#f45f74", "#bdd373", "#98c127", "#ffcd8e", "#ffb255"
+    "#8fd7d7",
+    "#00b0be",
+    "#ff8ca1",
+    "#f45f74",
+    "#bdd373",
+    "#98c127",
+    "#ffcd8e",
+    "#ffb255"
 )
 scale_discrete_colour_alternating <- function(...) {
     ggplot2::scale_colour_manual(
@@ -398,7 +454,6 @@ scale_discrete_fill_alternating <- function(...) {
         ...
     )
 }
-
 
 # # Test 1: Simple scatter plot with clean axes
 # ggplot(mtcars, aes(wt, mpg)) +
