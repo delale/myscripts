@@ -221,14 +221,14 @@ scale_continuous_fill_ocean_sunset <- function(...) {
     )
 }
 scale_discrete_colour_ocean_sunset <- function(n, ...) {
-    colours <- grDevices::colourRampPalette(continuous_palette_ocean_sunset)(n)
+    colours <- grDevices::colorRampPalette(continuous_palette_ocean_sunset)(n)
     ggplot2::scale_colour_manual(
         values = colours,
         ...
     )
 }
 scale_discrete_fill_ocean_sunset <- function(n, ...) {
-    colours <- grDevices::colourRampPalette(continuous_palette_ocean_sunset)(n)
+    colours <- grDevices::colorRampPalette(continuous_palette_ocean_sunset)(n)
     ggplot2::scale_fill_manual(
         values = colours,
         ...
@@ -261,14 +261,14 @@ scale_continuous_fill_midnight_rose <- function(...) {
     )
 }
 scale_discrete_colour_midnight_rose <- function(n, ...) {
-    colours <- grDevices::colourRampPalette(continuous_palette_midnight_rose)(n)
+    colours <- grDevices::colorRampPalette(continuous_palette_midnight_rose)(n)
     ggplot2::scale_colour_manual(
         values = colours,
         ...
     )
 }
 scale_discrete_fill_midnight_rose <- function(n, ...) {
-    colours <- grDevices::colourRampPalette(continuous_palette_midnight_rose)(n)
+    colours <- grDevices::colorRampPalette(continuous_palette_midnight_rose)(n)
     ggplot2::scale_fill_manual(
         values = colours,
         ...
@@ -298,14 +298,14 @@ scale_continuous_fill_sequential <- function(...) {
     )
 }
 scale_discrete_colour_sequential <- function(n, ...) {
-    colours <- grDevices::colourRampPalette(continuous_palette_sequential)(n)
+    colours <- grDevices::colorRampPalette(continuous_palette_sequential)(n)
     ggplot2::scale_colour_manual(
         values = colours,
         ...
     )
 }
 scale_discrete_fill_sequential <- function(n, ...) {
-    colours <- grDevices::colourRampPalette(continuous_palette_sequential)(n)
+    colours <- grDevices::colorRampPalette(continuous_palette_sequential)(n)
     ggplot2::scale_fill_manual(
         values = colours,
         ...
@@ -332,14 +332,14 @@ scale_continuous_fill_purples <- function(...) {
     )
 }
 scale_discrete_colour_purples <- function(n, ...) {
-    colours <- grDevices::colourRampPalette(continuous_palette_purples)(n)
+    colours <- grDevices::colorRampPalette(continuous_palette_purples)(n)
     ggplot2::scale_colour_manual(
         values = colours,
         ...
     )
 }
 scale_discrete_fill_purples <- function(n, ...) {
-    colours <- grDevices::colourRampPalette(continuous_palette_purples)(n)
+    colours <- grDevices::colorRampPalette(continuous_palette_purples)(n)
     ggplot2::scale_fill_manual(
         values = colours,
         ...
