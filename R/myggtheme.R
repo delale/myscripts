@@ -105,7 +105,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     family = base_fontfamily,
                     face = "bold",
                     colour = "black",
-                    margin = margin(r = 6, b = 4, t = 4, l = 6),
+                    margin = margin(r = 6, b = 4, t = 4, l = 4),
                     hjust = 0.5,
                     vjust = 0.5,
                     angle = 90
@@ -114,7 +114,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     size = 12,
                     family = base_fontfamily,
                     colour = "black",
-                    margin = margin(r = 6, b = 4, t = 4, l = 4),
+                    margin = margin(r = 4, b = 4, t = 4, l = 6),
                     hjust = 0.5
                 ),
                 legend.background = element_rect(
