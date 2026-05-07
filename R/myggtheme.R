@@ -3,8 +3,8 @@ library("ggthemes")
 library("ggtext")
 library("systemfonts")
 
-
-get_base_fontfamily <- function(family = "OpenDyslexic Nerd Font") {
+# OpenDyslexic Nerd Font
+get_base_fontfamily <- function(family = "Mononoki Nerd Font") {
     if (family %in% system_fonts()$family) {
         return(family)
     } else {
@@ -47,7 +47,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     face = "bold",
                     colour = "black",
                     angle = 0,
-                    margin = margin(t = 6)
+                    margin = margin(t = 6, b = 2)
                 ),
                 axis.title.y = element_text(
                     size = 14,
@@ -55,7 +55,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     face = "bold",
                     colour = "black",
                     angle = 90,
-                    margin = margin(r = 6)
+                    margin = margin(r = 6, l = 2)
                 ),
                 axis.text.y = element_text(
                     size = 10,
@@ -82,7 +82,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     family = base_fontfamily,
                     face = "italic",
                     colour = "black",
-                    hjust = 0
+                    hjust = 0.5
                 ),
                 plot.tag.position = "bottomleft",
                 # Ticks and lines
@@ -123,9 +123,9 @@ theme_adl <- function(base_fontfamily = NULL) {
                     linewidth = 1
                 ),
                 legend.key = element_rect(colour = "black", fill = NA),
-                legend.key.width = unit(0.75, "cm"),
-                legend.key.height = unit(0.75, "cm"),
-                legend.key.size = unit(0.6, "cm"),
+                legend.key.width = unit(0.5, "cm"),
+                legend.key.height = unit(0.5, "cm"),
+                legend.key.size = unit(0.5, "cm"),
                 legend.margin = margin(t = 4, r = 4, b = 4, l = 4),
                 legend.position = "right",
                 legend.title.position = "left",
@@ -163,10 +163,10 @@ theme_adl <- function(base_fontfamily = NULL) {
                 ),
                 panel.spacing = unit(0.2, "cm"),
                 plot.margin = margin(
-                    t = 0.2,
-                    r = 0.2,
-                    b = 0.2,
-                    l = 0.2,
+                    t = 0.1,
+                    r = 0.1,
+                    b = 0.1,
+                    l = 0.1,
                     unit = "cm"
                 ),
                 plot.background = element_rect(fill = "white"),
