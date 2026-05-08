@@ -169,8 +169,9 @@ theme_adl <- function(base_fontfamily = NULL) {
                     l = 0.1,
                     unit = "cm"
                 ),
-                plot.background = element_rect(fill = "white"),
-                panel.background = element_rect(fill = "white")
+                plot.background = element_blank(),
+                panel.background = element_blank()
+                # panel.background = element_rect(fill = "#fcdce0")
             )
     )
 }
@@ -455,48 +456,48 @@ scale_discrete_fill_alternating <- function(...) {
     )
 }
 
-# # Test 1: Simple scatter plot with clean axes
-# ggplot(mtcars, aes(wt, mpg)) +
-# geom_point(size = 3, colour = "darkblue") +
-# scale_x_continuous(expand = c(0.05, 0.05)) +
-# scale_y_continuous(expand = c(0.05, 0.05)) +
-# labs(
-#     title = "Fuel Efficiency vs Weight",
-#     x = "Weight (1000 lbs)",
-#     y = "Miles Per Gallon",
-#     caption = "This is a caption",
-#     subtitle = "Subtitle",
-#     tag = "Fig.1"
-# ) +
-# theme_adl()
+# Test 1: Simple scatter plot with clean axes
+ggplot(mtcars, aes(wt, mpg)) +
+geom_point(size = 3, colour = "darkblue") +
+scale_x_continuous(expand = c(0.05, 0.05)) +
+scale_y_continuous(expand = c(0.05, 0.05)) +
+labs(
+    title = "Fuel Efficiency vs Weight",
+    x = "Weight (1000 lbs)",
+    y = "Miles Per Gallon",
+    caption = "This is a caption",
+    subtitle = "Subtitle",
+    tag = "Fig.1"
+) +
+theme_adl()
 
-# # Test 2: Boxplot with faceting (shows facet styling)
-# ggplot(mtcars, aes(factor(cyl), mpg, fill = factor(cyl))) +
-# geom_boxplot() +
-# facet_wrap(~am, labeller = labeller(am = c("0" = "Automatic", "1" = "Manual"))) +
-# scale_x_discrete(expand = c(0.1, 0.1)) +
-# scale_y_continuous(expand = c(0.05, 0.05)) +
-# labs(
-#     title = "MPG by Cylinders and Transmission",
-#     x = "Number of Cylinders",
-#     y = "Miles Per Gallon",
-#     fill = "Cylinders"
-# ) +
-# scale_discrete_fill_purples(n=3) +
-# theme_adl()
+# Test 2: Boxplot with faceting (shows facet styling)
+ggplot(mtcars, aes(factor(cyl), mpg, fill = factor(cyl))) +
+geom_boxplot() +
+facet_wrap(~am, labeller = labeller(am = c("0" = "Automatic", "1" = "Manual"))) +
+scale_x_discrete(expand = c(0.1, 0.1)) +
+scale_y_continuous(expand = c(0.05, 0.05)) +
+labs(
+    title = "MPG by Cylinders and Transmission",
+    x = "Number of Cylinders",
+    y = "Miles Per Gallon",
+    fill = "Cylinders"
+) +
+scale_discrete_fill_midnight_rose(n=3) +
+theme_adl()
 
-# # Test 3: Line plot with legend
-# iris_summary <- aggregate(Sepal.Length ~ Species, iris, mean)
-# ggplot(iris, aes(Sepal.Width, Sepal.Length, colour = Species)) +
-# geom_point(size = 2) +
-# geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
-# scale_x_continuous(expand = c(0.05, 0.05)) +
-# scale_y_continuous(expand = c(0.05, 0.05)) +
-# labs(
-#     title = "Sepal Dimensions by Species",
-#     x = "Sepal Width (cm)",
-#     y = "Sepal Length (cm)",
-#     colour = "Species"
-# ) +
-#     scale_discrete_colour_bright() +
-#     theme_adl()
+# Test 3: Line plot with legend
+iris_summary <- aggregate(Sepal.Length ~ Species, iris, mean)
+ggplot(iris, aes(Sepal.Width, Sepal.Length, colour = Species)) +
+geom_point(size = 2) +
+geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
+scale_x_continuous(expand = c(0.05, 0.05)) +
+scale_y_continuous(expand = c(0.05, 0.05)) +
+labs(
+    title = "Sepal Dimensions by Species",
+    x = "Sepal Width (cm)",
+    y = "Sepal Length (cm)",
+    colour = "Species"
+) +
+    scale_discrete_colour_bright() +
+    theme_adl()
