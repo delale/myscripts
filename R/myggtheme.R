@@ -13,7 +13,7 @@ get_base_fontfamily <- function(family = "Mononoki Nerd Font") {
     }
 }
 
-theme_adl <- function(base_fontfamily = NULL) {
+theme_adl <- function(base_fontfamily = NULL, font_scale_factor = 1) {
     if (is.null(base_fontfamily)) {
         base_fontfamily <- get_base_fontfamily()
     } else {
@@ -25,7 +25,7 @@ theme_adl <- function(base_fontfamily = NULL) {
             theme(
                 # Labels
                 plot.title = element_text(
-                    size = 16,
+                    size = as.integer(16 * font_scale_factor),
                     family = base_fontfamily,
                     face = "bold.italic",
                     colour = "black",
@@ -33,7 +33,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     margin = margin(b = 5, t = 10)
                 ),
                 plot.subtitle = element_text(
-                    size = 14,
+                    size = as.integer(14 * font_scale_factor),
                     family = base_fontfamily,
                     face = "bold.italic",
                     colour = "black",
@@ -42,7 +42,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                 ),
                 plot.title.position = "plot",
                 axis.title.x = element_text(
-                    size = 14,
+                    size = as.integer(14 * font_scale_factor),
                     family = base_fontfamily,
                     face = "bold",
                     colour = "black",
@@ -50,7 +50,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     margin = margin(t = 6, b = 2)
                 ),
                 axis.title.y = element_text(
-                    size = 14,
+                    size = as.integer(14 * font_scale_factor),
                     family = base_fontfamily,
                     face = "bold",
                     colour = "black",
@@ -58,19 +58,19 @@ theme_adl <- function(base_fontfamily = NULL) {
                     margin = margin(r = 6, l = 2)
                 ),
                 axis.text.y = element_text(
-                    size = 10,
+                    size = as.integer(10 * font_scale_factor),
                     family = base_fontfamily,
                     colour = "black",
                     margin = margin(r = 6)
                 ),
                 axis.text.x = element_text(
-                    size = 10,
+                    size = as.integer(10 * font_scale_factor),
                     family = base_fontfamily,
                     colour = "black",
                     margin = margin(t = 6)
                 ),
                 plot.caption = element_text(
-                    size = 12,
+                    size = as.integer(12 * font_scale_factor),
                     family = base_fontfamily,
                     face = "italic",
                     colour = "black",
@@ -78,7 +78,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                 ),
                 plot.caption.position = "plot",
                 plot.tag = element_text(
-                    size = 12,
+                    size = as.integer(12 * font_scale_factor),
                     family = base_fontfamily,
                     face = "italic",
                     colour = "black",
@@ -101,7 +101,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                 ),
                 # Legend
                 legend.title = element_text(
-                    size = 14,
+                    size = as.integer(14 * font_scale_factor),
                     family = base_fontfamily,
                     face = "bold",
                     colour = "black",
@@ -111,7 +111,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     angle = 90
                 ),
                 legend.text = element_text(
-                    size = 12,
+                    size = as.integer(12 * font_scale_factor),
                     family = base_fontfamily,
                     colour = "black",
                     margin = margin(r = 4, b = 4, t = 4, l = 6),
@@ -139,14 +139,14 @@ theme_adl <- function(base_fontfamily = NULL) {
                     linewidth = 1
                 ),
                 strip.text = element_text(
-                    size = 13,
+                    size = as.integer(13 * font_scale_factor),
                     family = base_fontfamily,
                     face = "italic",
                     colour = "black",
                     margin = margin(t = 6, b = 6)
                 ),
                 strip.text.x = element_text(
-                    size = 13,
+                    size = as.integer(13 * font_scale_factor),
                     angle = 0,
                     family = base_fontfamily,
                     face = "italic",
@@ -154,7 +154,7 @@ theme_adl <- function(base_fontfamily = NULL) {
                     margin = margin(t = 6, b = 6)
                 ),
                 strip.text.y = element_text(
-                    size = 13,
+                    size = as.integer(13 * font_scale_factor),
                     angle = -90,
                     family = base_fontfamily,
                     face = "italic",
@@ -458,46 +458,49 @@ scale_discrete_fill_alternating <- function(...) {
 
 # Test 1: Simple scatter plot with clean axes
 ggplot(mtcars, aes(wt, mpg)) +
-geom_point(size = 3, colour = "darkblue") +
-scale_x_continuous(expand = c(0.05, 0.05)) +
-scale_y_continuous(expand = c(0.05, 0.05)) +
-labs(
-    title = "Fuel Efficiency vs Weight",
-    x = "Weight (1000 lbs)",
-    y = "Miles Per Gallon",
-    caption = "This is a caption",
-    subtitle = "Subtitle",
-    tag = "Fig.1"
-) +
-theme_adl()
+    geom_point(size = 3, colour = "darkblue") +
+    scale_x_continuous(expand = c(0.05, 0.05)) +
+    scale_y_continuous(expand = c(0.05, 0.05)) +
+    labs(
+        title = "Fuel Efficiency vs Weight",
+        x = "Weight (1000 lbs)",
+        y = "Miles Per Gallon",
+        caption = "This is a caption",
+        subtitle = "Subtitle",
+        tag = "Fig.1"
+    ) +
+    theme_adl()
 
 # Test 2: Boxplot with faceting (shows facet styling)
 ggplot(mtcars, aes(factor(cyl), mpg, fill = factor(cyl))) +
-geom_boxplot() +
-facet_wrap(~am, labeller = labeller(am = c("0" = "Automatic", "1" = "Manual"))) +
-scale_x_discrete(expand = c(0.1, 0.1)) +
-scale_y_continuous(expand = c(0.05, 0.05)) +
-labs(
-    title = "MPG by Cylinders and Transmission",
-    x = "Number of Cylinders",
-    y = "Miles Per Gallon",
-    fill = "Cylinders"
-) +
-scale_discrete_fill_midnight_rose(n=3) +
-theme_adl()
+    geom_boxplot() +
+    facet_wrap(
+        ~am,
+        labeller = labeller(am = c("0" = "Automatic", "1" = "Manual"))
+    ) +
+    scale_x_discrete(expand = c(0.1, 0.1)) +
+    scale_y_continuous(expand = c(0.05, 0.05)) +
+    labs(
+        title = "MPG by Cylinders and Transmission",
+        x = "Number of Cylinders",
+        y = "Miles Per Gallon",
+        fill = "Cylinders"
+    ) +
+    scale_discrete_fill_midnight_rose(n = 3) +
+    theme_adl()
 
 # Test 3: Line plot with legend
 iris_summary <- aggregate(Sepal.Length ~ Species, iris, mean)
 ggplot(iris, aes(Sepal.Width, Sepal.Length, colour = Species)) +
-geom_point(size = 2) +
-geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
-scale_x_continuous(expand = c(0.05, 0.05)) +
-scale_y_continuous(expand = c(0.05, 0.05)) +
-labs(
-    title = "Sepal Dimensions by Species",
-    x = "Sepal Width (cm)",
-    y = "Sepal Length (cm)",
-    colour = "Species"
-) +
+    geom_point(size = 2) +
+    geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
+    scale_x_continuous(expand = c(0.05, 0.05)) +
+    scale_y_continuous(expand = c(0.05, 0.05)) +
+    labs(
+        title = "Sepal Dimensions by Species",
+        x = "Sepal Width (cm)",
+        y = "Sepal Length (cm)",
+        colour = "Species"
+    ) +
     scale_discrete_colour_bright() +
     theme_adl()
