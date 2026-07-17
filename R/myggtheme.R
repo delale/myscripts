@@ -27,7 +27,7 @@ theme_adl <- function(base_fontfamily = NULL, font_scale_factor = 1) {
                 plot.title = element_text(
                     size = as.integer(16 * font_scale_factor),
                     family = base_fontfamily,
-                    face = "bold.italic",
+                    face = "bold",
                     colour = "black",
                     hjust = 0.5,
                     margin = margin(b = 5, t = 10)
@@ -35,7 +35,7 @@ theme_adl <- function(base_fontfamily = NULL, font_scale_factor = 1) {
                 plot.subtitle = element_text(
                     size = as.integer(14 * font_scale_factor),
                     family = base_fontfamily,
-                    face = "bold.italic",
+                    face = "bold",
                     colour = "black",
                     hjust = 0.5,
                     margin = margin(b = 5, t = 2)
@@ -80,7 +80,7 @@ theme_adl <- function(base_fontfamily = NULL, font_scale_factor = 1) {
                 plot.tag = element_text(
                     size = as.integer(12 * font_scale_factor),
                     family = base_fontfamily,
-                    face = "italic",
+                    # face = "italic",
                     colour = "black",
                     hjust = 0.5
                 ),
@@ -141,7 +141,7 @@ theme_adl <- function(base_fontfamily = NULL, font_scale_factor = 1) {
                 strip.text = element_text(
                     size = as.integer(13 * font_scale_factor),
                     family = base_fontfamily,
-                    face = "italic",
+                    # face = "italic",
                     colour = "black",
                     margin = margin(t = 6, b = 6)
                 ),
@@ -149,7 +149,7 @@ theme_adl <- function(base_fontfamily = NULL, font_scale_factor = 1) {
                     size = as.integer(13 * font_scale_factor),
                     angle = 0,
                     family = base_fontfamily,
-                    face = "italic",
+                    # face = "italic",
                     colour = "black",
                     margin = margin(t = 6, b = 6)
                 ),
@@ -157,7 +157,7 @@ theme_adl <- function(base_fontfamily = NULL, font_scale_factor = 1) {
                     size = as.integer(13 * font_scale_factor),
                     angle = -90,
                     family = base_fontfamily,
-                    face = "italic",
+                    # face = "italic",
                     colour = "black",
                     margin = margin(r = 6, l = 6)
                 ),
