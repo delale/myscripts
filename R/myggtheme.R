@@ -3,6 +3,9 @@ library("ggthemes")
 library("ggtext")
 library("systemfonts")
 
+# library("showtext")
+# font_add(family = "Source Sans Pro", regular = "SourceSansPro-Regular.ttf", bold = "SourceSansPro-Bold.ttf", italic = "SourceSansPro-Italic.ttf", bolditalic = "SourceSansPro-BoldItalic.ttf")
+
 # OpenDyslexic Nerd Font
 get_base_fontfamily <- function(family = "Mononoki Nerd Font") {
     if (family %in% system_fonts()$family) {
@@ -194,6 +197,132 @@ visualize_palette <- function(colours) {
             axis.ticks.y = element_blank(),
             panel.grid = element_blank()
         )
+}
+
+# UZH primary
+continuous_uzh_palette_primary <- c(
+    "#0028A5",
+    "#4AC9E3",
+    "#A5D233",
+    "#FFC845",
+    "#FC4C02",
+    "#BF0D3E"
+)
+discrete_uzh_palette_primary <- c(
+    "#0028A5",
+    "#BF0D3E",
+    "#A5D233",
+    "#FC4C02",
+    "#4AC9E3",
+    "#FFC845"
+)
+scale_continuous_colour_uzhprimary <- function(...) {
+    ggplot2::scale_colour_gradientn(
+        colours = continuous_uzh_palette_primary,
+        ...
+    )
+}
+scale_continuous_fill_uzhprimary <- function(...) {
+    ggplot2::scale_fill_gradientn(
+        colours = continous_uzh_palette_primary,
+        ...
+    )
+}
+scale_discrete_colour_uzhprimary <- function(...) {
+    ggplot2::scale_colour_manual(
+        values = discrete_uzh_palette_primary,
+        ...
+    )
+}
+scale_discrete_fill_uzhprimary <- function(...) {
+    ggplot2::scale_fill_manual(
+        values = discrete_uzh_palette_primary,
+        ...
+    )
+}
+
+# UZH dark
+continuous_uzh_palette_dark <- c(
+    "#001E7C",
+    "#1EA7C4",
+    "#7CA023",
+    "#F3AB00",
+    "#BD3902",
+    "#8F0A2E"
+)
+discrete_uzh_palette_dark <- c(
+    "#001E7C",
+    "#8F0A2E",
+    "#7CA023",
+    "#BD3902",
+    "#1EA7C4",
+    "#F3AB00"
+)
+scale_continuous_colour_uzhdark <- function(...) {
+    ggplot2::scale_colour_gradientn(
+        colours = continuous_uzh_palette_dark,
+        ...
+    )
+}
+scale_continuous_fill_uzhdark <- function(...) {
+    ggplot2::scale_fill_gradientn(
+        colours = continuous_uzh_palette_dark,
+        ...
+    )
+}
+scale_discrete_colour_uzhdark <- function(...) {
+    ggplot2::scale_colour_manual(
+        values = discrete_uzh_palette_dark,
+        ...
+    )
+}
+scale_discrete_fill_uzhdark <- function(...) {
+    ggplot2::scale_fill_manual(
+        values = discrete_uzh_palette_dark,
+        ...
+    )
+}
+
+# UZH light
+continuous_uzh_palette_light <- c(
+    "#3062FF",
+    "#92DFEE",
+    "#C8E485",
+    "#FFDE8F",
+    "#FE9367",
+    "#F3537F"
+)
+discrete_uzh_palette_light <- c(
+    "#3062FF",
+    "#F3537F",
+    "#C8E485",
+    "#FE9367",
+    "#92DFEE",
+    "#FFDE8F"
+)
+scale_continuous_colour_uzhlight <- function(...) {
+    ggplot2::scale_colour_gradientn(
+        colours = continuous_uzh_palette_light,
+        ...
+    )
+}
+scale_continuous_fill_uzhlight <- function(...) {
+    ggplot2::scale_fill_gradientn(
+        colours = continuous_uzh_palette_light,
+        ...
+    )
+}
+scale_discrete_colour_uzhlight <- function(...) {
+    ggplot2::scale_colour_manual(
+        values = discrete_uzh_palette_light,
+        ...
+    )
+}
+scale_discrete_fill_uzhlight <- function(...) {
+    ggplot2::scale_fill_manual(
+        values = discrete_uzh_palette_light,
+        ...
+    )
 }
 
 # Ocean sunset
@@ -458,7 +587,7 @@ scale_discrete_fill_alternating <- function(...) {
 
 # Test 1: Simple scatter plot with clean axes
 ggplot(mtcars, aes(wt, mpg)) +
-    geom_point(size = 3, colour = "darkblue") +
+    geom_point(size = 3, colour = discrete_uzh_palette_primary[1]) +
     scale_x_continuous(expand = c(0.05, 0.05)) +
     scale_y_continuous(expand = c(0.05, 0.05)) +
     labs(
@@ -486,7 +615,7 @@ ggplot(mtcars, aes(factor(cyl), mpg, fill = factor(cyl))) +
         y = "Miles Per Gallon",
         fill = "Cylinders"
     ) +
-    scale_discrete_fill_midnight_rose(n = 3) +
+    scale_discrete_fill_uzhlight() +
     theme_adl()
 
 # Test 3: Line plot with legend
@@ -502,5 +631,5 @@ ggplot(iris, aes(Sepal.Width, Sepal.Length, colour = Species)) +
         y = "Sepal Length (cm)",
         colour = "Species"
     ) +
-    scale_discrete_colour_bright() +
+    scale_discrete_colour_uzhprimary() +
     theme_adl()
