@@ -224,7 +224,7 @@ scale_continuous_colour_uzhprimary <- function(...) {
 }
 scale_continuous_fill_uzhprimary <- function(...) {
     ggplot2::scale_fill_gradientn(
-        colours = continous_uzh_palette_primary,
+        colours = continuous_uzh_palette_primary,
         ...
     )
 }
@@ -633,3 +633,4 @@ ggplot(iris, aes(Sepal.Width, Sepal.Length, colour = Species)) +
     ) +
     scale_discrete_colour_uzhprimary() +
     theme_adl()
+
