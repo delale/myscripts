@@ -240,6 +240,20 @@ scale_discrete_fill_uzhprimary <- function(...) {
         ...
     )
 }
+scale_discretelarge_colour_uzhprimary <- function(n, ...) {
+    colours <- grDevices::colorRampPalette(continuous_uzh_palette_primary)(n)
+    ggplot2::scale_colour_manual(
+        values = colours,
+        ...
+    )
+}
+scale_discretelarge_fill_uzhprimary <- function(n, ...) {
+    colours <- grDevices::colorRampPalette(continuous_uzh_palette_primary)(n)
+    ggplot2::scale_fill_manual(
+        values = colours,
+        ...
+    )
+}
 
 # UZH dark
 continuous_uzh_palette_dark <- c(
@@ -282,6 +296,20 @@ scale_discrete_fill_uzhdark <- function(...) {
         ...
     )
 }
+scale_discretelarge_colour_uzhdark <- function(n, ...) {
+    colours <- grDevices::colorRampPalette(continuous_uzh_palette_dark)(n)
+    ggplot2::scale_colour_manual(
+        values = colours,
+        ...
+    )
+}
+scale_discretelarge_fill_uzhdark <- function(n, ...) {
+    colours <- grDevices::colorRampPalette(continuous_uzh_palette_dark)(n)
+    ggplot2::scale_fill_manual(
+        values = colours,
+        ...
+    )
+}
 
 # UZH light
 continuous_uzh_palette_light <- c(
@@ -321,6 +349,20 @@ scale_discrete_colour_uzhlight <- function(...) {
 scale_discrete_fill_uzhlight <- function(...) {
     ggplot2::scale_fill_manual(
         values = discrete_uzh_palette_light,
+        ...
+    )
+}
+scale_discretelarge_colour_uzhlight <- function(n, ...) {
+    colours <- grDevices::colorRampPalette(continuous_uzh_palette_light)(n)
+    ggplot2::scale_colour_manual(
+        values = colours,
+        ...
+    )
+}
+scale_discretelarge_fill_uzhlight <- function(n, ...) {
+    colours <- grDevices::colorRampPalette(continuous_uzh_palette_light)(n)
+    ggplot2::scale_fill_manual(
+        values = colours,
         ...
     )
 }
@@ -615,8 +657,8 @@ ggplot(mtcars, aes(factor(cyl), mpg, fill = factor(cyl))) +
         y = "Miles Per Gallon",
         fill = "Cylinders"
     ) +
-    scale_discrete_fill_uzhlight() +
-    theme_adl()
+    scale_discretelarge_fill_uzhlight(n = length(unique(mtcars$cyl)))
+# scale_discrete_fill_uzhlight() +
 
 # Test 3: Line plot with legend
 iris_summary <- aggregate(Sepal.Length ~ Species, iris, mean)
@@ -633,4 +675,3 @@ ggplot(iris, aes(Sepal.Width, Sepal.Length, colour = Species)) +
     ) +
     scale_discrete_colour_uzhprimary() +
     theme_adl()
-
